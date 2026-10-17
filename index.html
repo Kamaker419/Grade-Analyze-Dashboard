@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>개인 맞춤 성적 분석기</title>
+  <title>개인 맞춤 성적 분석기 v2.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -68,24 +68,27 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-              개인 맞춤 성적 분석기
+              개인 맞춤 성적 분석기 <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">v2.1</span>
             </h1>
             <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              자동 저장됨
+              수식 교정 & 자동 저장됨
             </span>
           </div>
           <p class="text-[11px] text-slate-500 dark:text-slate-400">
-            과목별 폴더 · 세부 배점 설계 · 연속확률분포 추정 · 조건부 몬테카를로 · 목표 점수 역산
+            소배점(5·6점) 정밀 보정 · 출석 분산 분리 · 공분산 목표 역산 · 예정 시험 시나리오 시뮬레이션
           </p>
         </div>
       </div>
 
-      <!-- Global Controls: Theme Toggle, Save, URL Share, JSON -->
       <div class="flex flex-wrap items-center gap-1.5">
         <button id="btn-theme-toggle" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition" title="밝은 모드 / 다크 모드 전환">
           <span id="theme-icon">☀️</span>
           <span id="theme-label">밝은 모드</span>
+        </button>
+
+        <button id="btn-load-my-backup" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-xs font-bold text-indigo-600 dark:text-indigo-300 transition" title="선형대수2·정수론·편미분방정식·해석개론2 백업 데이터를 즉시 불러옵니다">
+          <span>🔄 내 4과목 백업 로드</span>
         </button>
 
         <button id="btn-share-url" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 transition" title="현재 모든 과목 폴더 상태를 URL 링크로 복사합니다">
@@ -110,7 +113,6 @@
       </div>
     </div>
 
-    <!-- Subject Folders Bar -->
     <div class="border-t border-slate-200/60 dark:border-slate-800/60 bg-slate-100/70 dark:bg-slate-950/60">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
         <div class="flex items-center gap-2 overflow-x-auto py-0.5 flex-1">
@@ -126,7 +128,6 @@
     </div>
   </header>
 
-  <!-- Main Workspace -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
     <!-- Folder Overview & Syllabus Assessment Items Strip -->
     <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
@@ -170,23 +171,32 @@
       </div>
     </section>
 
-    <!-- VIEW MODE 1: FUTURE EXAM TARGET & SYLLABUS ANALYZER (폴더 종합 & 앞으로 봐야 할 시험 분석) -->
     <div id="view-folder-planner" class="hidden space-y-5">
       <!-- Summary Banner of Current Secured Score & Target Requirement -->
       <div id="planner-hero-card" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm"></div>
 
-      <!-- Detailed Syllabus Breakdown Table (Edit Weights, Status, Scores, Expected Params) -->
+      <!-- Detailed Syllabus Breakdown Table -->
       <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
           <div>
-            <h2 class="text-sm font-bold text-slate-900 dark:text-white">📋 과목 세부 배점표 및 시험별 상태 설정</h2>
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white">📋 과목 세부 배점표 및 시험별 상태 · 시나리오 설정</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              이미 치른 시험은 <strong>[완료됨]</strong>으로 두고 성적을 입력하며, 앞으로 볼 시험은 <strong>[예정]</strong>으로 두면 <strong>만점과 반영 비율(%)만</strong> 입력받습니다.
+              출석처럼 전원 만점에 가까운 항목은 <strong>[변별 제외(출석)]</strong>로 자동 분리되어 상대평가 Z-점수 왜곡을 방지합니다. 예정 시험의 예상 통계량도 직접 수정해 시뮬레이션할 수 있습니다.
             </p>
           </div>
-          <button id="btn-planner-add-item" type="button" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
-            + 평가 항목 추가
-          </button>
+          <div class="flex items-center gap-2">
+            <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+              <button id="btn-mode-prev" type="button" class="px-2.5 py-1 rounded-md font-bold transition">
+                완료 시험 난이도 연동
+              </button>
+              <button id="btn-mode-item" type="button" class="px-2.5 py-1 rounded-md font-bold transition">
+                예정 시험 입력값 시뮬레이션
+              </button>
+            </div>
+            <button id="btn-planner-add-item" type="button" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+              + 평가 항목 추가
+            </button>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -198,8 +208,8 @@
                 <th class="py-2.5 px-3">반영 비율 (%)</th>
                 <th class="py-2.5 px-3">만점 기준</th>
                 <th class="py-2.5 px-3">평균 / 중앙 / 표준편차</th>
-                <th class="py-2.5 px-3">내 점수</th>
-                <th class="py-2.5 px-3">현재 성취도 / 목표 역산</th>
+                <th class="py-2.5 px-3">내 점수 (또는 예상)</th>
+                <th class="py-2.5 px-3">상대평가 성취도 / 목표 역산</th>
                 <th class="py-2.5 px-3 text-right">관리</th>
               </tr>
             </thead>
@@ -208,28 +218,26 @@
         </div>
       </section>
 
-      <!-- Grade-by-Grade Target Requirement Cards for Upcoming Exams -->
       <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
           <div>
-            <h2 class="text-sm font-bold text-slate-900 dark:text-white">🎯 학점별 앞으로 얼마나 잘 봐야 하는지 상세 분석</h2>
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white">🎯 학점별 앞으로 얼마나 잘 봐야 하는지 상세 분석 (공분산 교정 완료)</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              이미 치른 시험들의 성적 분포와 내 위치($Z$-점수)를 바탕으로, <strong>예정된 시험(만점·배점 비율 기준)</strong>에서 달성해야 할 목표치입니다.
+              다중 평가 항목 간의 상관계수($\rho = 0.65$) 행렬을 반영한 정확한 합성 표준편차($\sigma_{\text{total}} = \sqrt{\sum w_i^2 + 2\rho\sum_{i<j} w_i w_j}$)로 요구 $Z$-점수와 목표 점수를 역산합니다.
             </p>
           </div>
-          <span class="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold">
-            완료된 시험 난이도 및 상대평가 비율 자동 연동
+          <span id="planner-assumption-badge" class="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold">
+            가중 합성 분포 역산 적용 중
           </span>
         </div>
 
         <div id="planner-tier-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
 
-        <!-- Per-Upcoming Exam Target Table -->
+        <!-- Per-Upcoming Exam Target & Scenario Simulation Box -->
         <div id="planner-upcoming-detail-box" class="pt-2"></div>
       </section>
     </div>
 
-    <!-- VIEW MODE 2: INDIVIDUAL EXAM STATISTICAL & MONTE CARLO ANALYZER -->
     <div id="view-exam-analyzer" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       <!-- LEFT COLUMN: Inputs (4 cols) -->
       <div class="lg:col-span-4 space-y-4">
@@ -246,7 +254,7 @@
             </select>
           </div>
 
-          <!-- Exam Name, Weight, Max Score (Always shown for both completed & upcoming) -->
+          <!-- Exam Name, Weight, Max Score -->
           <div class="grid grid-cols-4 gap-2.5">
             <div class="col-span-2">
               <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">시험 / 과제명</label>
@@ -262,25 +270,33 @@
             </div>
           </div>
 
-          <!-- Notice shown ONLY when exam is Upcoming (No extra data required!) -->
-          <div id="exam-upcoming-left-notice" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2.5">
-            <div class="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
-              <span>⏳ 예정된 시험입니다 (추가 데이터 입력 불필요)</span>
+          <!-- Fixed / Non-discriminating item toggle (e.g. Attendance) -->
+          <label class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs cursor-pointer">
+            <div>
+              <span class="font-bold text-slate-700 dark:text-slate-200">고정 만점 / 절대평가 항목 (출석 등)</span>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400">체크 시 상대평가 Z-점수 왜곡을 막기 위해 변별 분산에서 분리합니다.</p>
             </div>
-            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              앞으로 봐야 할 시험은 <strong>배점 비율(%)</strong>과 <strong>만점 기준</strong>만 설정하면 됩니다. 우측 화면에서 이미 완료된 시험 성적을 바탕으로 역산된 목표 등수와 점수를 바로 확인하세요.
+            <input id="check-fixed-item" type="checkbox" class="rounded accent-indigo-600 w-4 h-4 shrink-0" />
+          </label>
+
+          <!-- Notice shown when exam is Upcoming -->
+          <div id="exam-upcoming-left-notice" class="hidden p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2">
+            <div class="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center justify-between">
+              <span>⏳ 예정된 시험 (목표 역산 & 예상 시나리오)</span>
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+              우측 상단에는 <strong>완료된 시험 기반 목표 점수 역산표</strong>가 표시되며, 아래 입력창에 예상 평균·내 예상 점수를 넣으면 <strong>예상 시나리오 분포</strong>도 함께 시뮬레이션할 수 있습니다.
             </p>
-            <button id="btn-switch-to-completed" type="button" class="w-full py-2 px-3 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 transition">
-              ✅ 시험을 치렀다면 [완료된 시험]으로 전환하기
+            <button id="btn-switch-to-completed" type="button" class="w-full py-1.5 px-3 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 transition">
+              ✅ 시험을 치렀다면 [완료된 시험]으로 즉시 전환
             </button>
           </div>
 
-          <!-- Statistical Inputs Group (Shown ONLY when exam is Completed) -->
           <div id="exam-stats-inputs-group" class="space-y-4">
             <!-- Mean & Median (Decimal Safe) -->
             <div class="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-500/30 space-y-2.5">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">필수 통계량 (소수점 자유 입력)</span>
+                <span id="label-stats-section" class="text-xs font-bold text-indigo-700 dark:text-indigo-300">필수 통계량 (소수점 자유 입력)</span>
                 <span class="text-[11px] text-slate-500 dark:text-slate-400">왜도(비대칭) 산출</span>
               </div>
               <div class="grid grid-cols-2 gap-3">
@@ -314,7 +330,7 @@
 
               <div class="flex items-center gap-3">
                 <div class="flex-1 space-y-1">
-                  <input id="slider-sd" type="range" min="3.0" max="40.0" step="0.1" class="w-full accent-indigo-600" />
+                  <input id="slider-sd" type="range" min="0.2" max="40.0" step="0.1" class="w-full accent-indigo-600" />
                   <div class="flex justify-between text-[10px] text-slate-400">
                     <span id="sd-min-label">촘촘함</span>
                     <button id="btn-jump-ai-sd" type="button" class="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold">
@@ -343,7 +359,6 @@
           </div>
         </section>
 
-        <!-- Card 2: My Score, Known Scores & MANUAL Monte Carlo Trigger (Shown ONLY when Completed) -->
         <section id="card-my-score-mc" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -358,7 +373,7 @@
           <!-- My Score -->
           <div class="p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200/70 dark:border-rose-500/30 space-y-2">
             <div class="flex items-center justify-between">
-              <label class="text-xs font-bold text-rose-700 dark:text-rose-300">내 점수 (My Score)</label>
+              <label id="label-my-score-title" class="text-xs font-bold text-rose-700 dark:text-rose-300">내 점수 (My Score)</label>
               <span id="my-score-pct-label" class="text-xs text-rose-600 dark:text-rose-300 font-semibold">만점 대비 88.5%</span>
             </div>
             <div class="flex items-center gap-3">
@@ -378,7 +393,7 @@
               </button>
             </div>
             <form id="form-add-known" class="flex gap-1.5">
-              <input id="input-known-scores" type="text" inputmode="decimal" placeholder="예: 92.5, 85, 71.2 (쉼표 구분)" class="flex-1 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none" />
+              <input id="input-known-scores" type="text" inputmode="decimal" placeholder="예: 92.5, 85, 0 (쉼표 구분)" class="flex-1 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none" />
               <button type="submit" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-semibold shrink-0 transition">
                 추가
               </button>
@@ -396,9 +411,9 @@
             <label class="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800">
               <input id="check-enforce-moments" type="checkbox" checked class="rounded accent-indigo-600 mt-0.5" />
               <div class="leading-snug">
-                <span class="font-semibold text-slate-800 dark:text-slate-100">조건부 추출 (평균·중앙값·지인 점수 고정)</span>
+                <span class="font-semibold text-slate-800 dark:text-slate-100">조건부 층화·구간 스케일링 추출</span>
                 <p id="mc-cond-desc" class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                  미확인 학생 점수 추출 시 전체 평균과 중앙값 비율을 강제합니다.
+                  중앙값 상·하위 인원 비율을 보존하면서 잔여 학생 평균을 동시에 일치시킵니다.
                 </p>
               </div>
             </label>
@@ -410,182 +425,179 @@
 
             <button id="btn-run-mc" type="button" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 transition">
               <svg id="icon-run-mc" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <span id="label-run-mc">몬테카를로 시뮬레이션 실행 (3,000회)</span>
+              <span id="label-run-mc">몬테카를로 시뮬레이션 실행 (10,000회)</span>
             </button>
           </div>
         </section>
       </div>
 
-      <!-- RIGHT COLUMN: Charts & Analysis Results (8 cols) -->
       <div class="lg:col-span-8 space-y-4">
-        <!-- Upcoming Exam Dedicated Target Reverse-Calculation View (Shown when an upcoming exam is clicked) -->
+        <!-- Upcoming Exam Dedicated Target Reverse-Calculation View -->
         <div id="exam-upcoming-target-panel" class="hidden space-y-4"></div>
 
-        <!-- Completed Exam Statistical & Monte Carlo Analysis Group -->
+        <!-- Completed / Scenario Exam Statistical & Monte Carlo Analysis Group -->
         <div id="exam-completed-analysis-group" class="space-y-4">
-        <!-- Top 4 KPI Summary Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
-            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-              <span>연속분포 상위 백분위</span>
-              <span class="text-indigo-500 font-bold">📈</span>
+          <!-- Top 4 KPI Summary Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+              <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <span>연속분포 상위 백분위</span>
+                <span class="text-indigo-500 font-bold">📈</span>
+              </div>
+              <div id="kpi-top-pct" class="mt-1.5 text-xl sm:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
+                상위 18.4%
+              </div>
+              <div id="kpi-cont-rank" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                이론상 약 8.3등 / 45명
+              </div>
             </div>
-            <div id="kpi-top-pct" class="mt-1.5 text-xl sm:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
-              상위 18.4%
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+              <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <span>표준화 Z / T 점수</span>
+                <span class="text-emerald-500 font-bold">⚡</span>
+              </div>
+              <div class="mt-1.5 flex items-baseline gap-1.5">
+                <span id="kpi-z-score" class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">+0.89σ</span>
+                <span id="kpi-t-score" class="text-xs text-slate-400">(T=58.9)</span>
+              </div>
+              <div id="kpi-mean-diff" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                평균 대비 +12.1점
+              </div>
             </div>
-            <div id="kpi-cont-rank" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              이론상 약 8.3등 / 45명
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+              <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <span>몬테카를로 예상 등수</span>
+                <span class="text-rose-500 font-bold">🎲</span>
+              </div>
+              <div class="mt-1.5 flex items-baseline gap-1.5">
+                <span id="kpi-expected-rank" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">-</span>
+                <span id="kpi-total-n" class="text-xs text-slate-400">/ 45명</span>
+              </div>
+              <div id="kpi-rank-ci" class="mt-1 text-[11px] text-rose-600 dark:text-rose-400">
+                실행 버튼을 눌러주세요
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+              <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <span>해당 시험 학점 권역</span>
+                <span class="text-amber-500 font-bold">🎓</span>
+              </div>
+              <div id="kpi-grade-tier" class="mt-1.5 text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400">
+                A0 권역
+              </div>
+              <div id="kpi-expected-gpa" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                연속분포 기준 추정
+              </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
-            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-              <span>표준화 Z / T 점수</span>
-              <span class="text-emerald-500 font-bold">⚡</span>
-            </div>
-            <div class="mt-1.5 flex items-baseline gap-1.5">
-              <span id="kpi-z-score" class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">+0.89σ</span>
-              <span id="kpi-t-score" class="text-xs text-slate-400">(T=58.9)</span>
-            </div>
-            <div id="kpi-mean-diff" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              평균 대비 +12.1점
-            </div>
+          <!-- Diagnostic Banner -->
+          <div id="diagnostic-banner" class="px-4 py-3 rounded-xl border text-xs leading-relaxed">
+            <span id="diag-label" class="font-bold mr-1.5"></span>
+            <span id="diag-desc"></span>
+            <div id="diag-ai-rec" class="mt-1 font-medium text-indigo-600 dark:text-indigo-400"></div>
           </div>
 
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
-            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-              <span>몬테카를로 예상 등수</span>
-              <span class="text-rose-500 font-bold">🎲</span>
-            </div>
-            <div class="mt-1.5 flex items-baseline gap-1.5">
-              <span id="kpi-expected-rank" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">-</span>
-              <span id="kpi-total-n" class="text-xs text-slate-400">/ 45명</span>
-            </div>
-            <div id="kpi-rank-ci" class="mt-1 text-[11px] text-rose-600 dark:text-rose-400">
-              실행 버튼을 눌러주세요
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
-            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-              <span>해당 시험 학점 권역</span>
-              <span class="text-amber-500 font-bold">🎓</span>
-            </div>
-            <div id="kpi-grade-tier" class="mt-1.5 text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400">
-              A0 권역
-            </div>
-            <div id="kpi-expected-gpa" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              연속분포 기준 추정
-            </div>
-          </div>
-        </div>
-
-        <!-- Diagnostic Banner -->
-        <div id="diagnostic-banner" class="px-4 py-3 rounded-xl border text-xs leading-relaxed">
-          <span id="diag-label" class="font-bold mr-1.5"></span>
-          <span id="diag-desc"></span>
-          <div id="diag-ai-rec" class="mt-1 font-medium text-indigo-600 dark:text-indigo-400"></div>
-        </div>
-
-        <!-- Analysis Sub-Tabs Card -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-            <div class="flex flex-wrap gap-1.5">
-              <button data-tab="distribution" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-600 text-white">
-                📈 확률밀도 곡선 & 모델 비교
-              </button>
-              <button data-tab="montecarlo" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
-                🎲 몬테카를로 등수 분포
-              </button>
-              <button data-tab="gradetier" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
-                🏅 상대평가 학점 컷 설정
-              </button>
-            </div>
-
-            <button id="btn-jump-folder-planner" type="button" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition">
-              🎯 앞으로 봐야 할 시험 목표 분석 보기 →
-            </button>
-          </div>
-
-          <!-- TAB 1: Continuous Distribution Curve -->
-          <div id="tab-panel-distribution" class="space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2 rounded-xl border border-slate-200/70 dark:border-slate-800 text-xs">
-              <span id="chart-sd-summary" class="text-slate-600 dark:text-slate-300"></span>
-              <label class="flex items-center gap-1.5 text-sky-600 dark:text-sky-400 cursor-pointer font-medium">
-                <input id="check-mc-hist-main" type="checkbox" checked class="rounded accent-sky-500" />
-                <span>몬테카를로 히스토그램 겹쳐보기 (실행 시 표시)</span>
-              </label>
-            </div>
-
-            <div class="relative w-full">
-              <svg id="svg-dist-chart" viewBox="0 0 760 330" class="w-full h-auto select-none overflow-visible cursor-crosshair"></svg>
-              <div id="chart-legend-bar" class="flex flex-wrap items-center justify-between gap-2 mt-2 px-1 text-xs text-slate-500 dark:text-slate-400"></div>
-            </div>
-
-            <!-- Model Parameter Table -->
-            <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
-              <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr class="bg-slate-50 dark:bg-slate-950/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                    <th class="py-2 px-3">확률분포 모델</th>
-                    <th class="py-2 px-3">추정 모수 (Parameters)</th>
-                    <th class="py-2 px-3">분포 평균 / 중앙 / SD</th>
-                    <th class="py-2 px-3">내 점수 상위 %</th>
-                    <th class="py-2 px-3">선택</th>
-                  </tr>
-                </thead>
-                <tbody id="dist-comparison-tbody" class="divide-y divide-slate-200/60 dark:divide-slate-800/60"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- TAB 2: Monte Carlo Rank Probability Distribution -->
-          <div id="tab-panel-montecarlo" class="hidden space-y-4">
-            <div id="rank-chart-container-tab2"></div>
-            <div id="mc-impact-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
-            <div id="mc-sample-runs-box" class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-              <div class="bg-slate-50 dark:bg-slate-950 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-200">몬테카를로 개별 시행 표본 미리보기 (첫 5회차)</span>
-                <button id="btn-reroll-samples" type="button" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">
-                  🔄 다시 시뮬레이션 돌리기
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div class="flex flex-wrap gap-1.5">
+                <button data-tab="distribution" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-600 text-white">
+                  📈 확률밀도 곡선 & 모델 비교
+                </button>
+                <button data-tab="montecarlo" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+                  🎲 몬테카를로 등수 분포
+                </button>
+                <button data-tab="gradetier" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+                  🏅 상대평가 학점 컷 설정
                 </button>
               </div>
-              <div class="overflow-x-auto">
+
+              <button id="btn-jump-folder-planner" type="button" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition">
+                🎯 앞으로 봐야 할 시험 목표 분석 보기 →
+              </button>
+            </div>
+
+            <!-- TAB 1: Continuous Distribution Curve -->
+            <div id="tab-panel-distribution" class="space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2 rounded-xl border border-slate-200/70 dark:border-slate-800 text-xs">
+                <span id="chart-sd-summary" class="text-slate-600 dark:text-slate-300"></span>
+                <label class="flex items-center gap-1.5 text-sky-600 dark:text-sky-400 cursor-pointer font-medium">
+                  <input id="check-mc-hist-main" type="checkbox" checked class="rounded accent-sky-500" />
+                  <span>몬테카를로 히스토그램 겹쳐보기 (실행 시 표시)</span>
+                </label>
+              </div>
+
+              <div class="relative w-full">
+                <svg id="svg-dist-chart" viewBox="0 0 760 330" class="w-full h-auto select-none overflow-visible cursor-crosshair"></svg>
+                <div id="chart-legend-bar" class="flex flex-wrap items-center justify-between gap-2 mt-2 px-1 text-xs text-slate-500 dark:text-slate-400"></div>
+              </div>
+
+              <!-- Model Parameter Table -->
+              <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
                 <table class="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr class="bg-slate-100/60 dark:bg-slate-900/70 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                      <th class="py-2 px-3">시행 회차</th>
-                      <th class="py-2 px-3">내 등수</th>
-                      <th class="py-2 px-3">표본 평균</th>
-                      <th class="py-2 px-3">표본 중앙값</th>
-                      <th class="py-2 px-3">A+ 컷</th>
-                      <th class="py-2 px-3">A0 컷</th>
+                    <tr class="bg-slate-50 dark:bg-slate-950/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                      <th class="py-2 px-3">확률분포 모델</th>
+                      <th class="py-2 px-3">추정 모수 (Parameters)</th>
+                      <th class="py-2 px-3">분포 평균 / 중앙 / SD</th>
+                      <th class="py-2 px-3">내 점수 상위 %</th>
+                      <th class="py-2 px-3">선택</th>
                     </tr>
                   </thead>
-                  <tbody id="mc-sample-runs-tbody" class="divide-y divide-slate-200/60 dark:divide-slate-800/60"></tbody>
+                  <tbody id="dist-comparison-tbody" class="divide-y divide-slate-200/60 dark:divide-slate-800/60"></tbody>
                 </table>
               </div>
             </div>
-          </div>
 
-          <!-- TAB 3: Relative Grade Cutoffs -->
-          <div id="tab-panel-gradetier" class="hidden space-y-4">
-            <div>
-              <h4 class="text-sm font-bold text-slate-900 dark:text-white">과목 상대평가 누적 비율(%) 설정</h4>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                이 과목 폴더의 상대평가 기준 비율을 입력하면 예상 컷 점수와 앞으로 봐야 할 시험의 목표 기준선이 함께 조정됩니다.
-              </p>
+            <!-- TAB 2: Monte Carlo Rank Probability Distribution -->
+            <div id="tab-panel-montecarlo" class="hidden space-y-4">
+              <div id="rank-chart-container-tab2"></div>
+              <div id="mc-impact-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+              <div id="mc-sample-runs-box" class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                <div class="bg-slate-50 dark:bg-slate-950 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-200">몬테카를로 개별 시행 표본 미리보기 (첫 5회차)</span>
+                  <button id="btn-reroll-samples" type="button" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">
+                    🔄 다시 시뮬레이션 돌리기
+                  </button>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr class="bg-slate-100/60 dark:bg-slate-900/70 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                        <th class="py-2 px-3">시행 회차</th>
+                        <th class="py-2 px-3">내 등수</th>
+                        <th class="py-2 px-3">표본 평균</th>
+                        <th class="py-2 px-3">표본 중앙값</th>
+                        <th class="py-2 px-3">A+ 컷</th>
+                        <th class="py-2 px-3">A0 컷</th>
+                      </tr>
+                    </thead>
+                    <tbody id="mc-sample-runs-tbody" class="divide-y divide-slate-200/60 dark:divide-slate-800/60"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div id="grade-cut-inputs-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800"></div>
-            <div id="grade-prob-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
+
+            <!-- TAB 3: Relative Grade Cutoffs -->
+            <div id="tab-panel-gradetier" class="hidden space-y-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white">과목 상대평가 누적 비율(%) 설정</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  이 과목 폴더의 상대평가 기준 비율을 입력하면 예상 컷 점수와 앞으로 봐야 할 시험의 목표 기준선이 함께 조정됩니다.
+                </p>
+              </div>
+              <div id="grade-cut-inputs-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800"></div>
+              <div id="grade-prob-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- JSON Backup / Restore Modal -->
   <div id="json-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl w-full p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -609,7 +621,7 @@
 
   <script type="module">
     // =========================================================================
-    // 1. MATHEMATICAL & STATISTICAL ENGINE
+    // 1. MATHEMATICAL & STATISTICAL ENGINE (FIXED & CALIBRATED)
     // =========================================================================
     function lnGamma(z) {
       const c = [
@@ -672,8 +684,10 @@
     }
 
     function betaPDF(x, a, b) {
-      if (x <= 0.0005 || x >= 0.9995) return 0;
-      return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - lnBeta(a, b));
+      // Softened boundary clamping to preserve U-shaped / boundary-heavy distributions
+      const xc = Math.min(Math.max(x, 0.0002), 0.9998);
+      const val = Math.exp((a - 1) * Math.log(xc) + (b - 1) * Math.log(1 - xc) - lnBeta(a, b));
+      return Number.isFinite(val) ? Math.min(val, 60) : 0;
     }
 
     function stdNormalPDF(z) {
@@ -708,15 +722,28 @@
       return -(((((c[0] * r + c[1]) * r + c[2]) * r + c[3]) * r + c[4]) * r + c[5]) / ((((d[0] * r + d[1]) * r + d[2]) * r + d[3]) * r + 1);
     }
 
+    // Helper: Detect if an assessment item is a fixed full-score item (like Attendance)
+    function isNonDiscriminatingItem(item) {
+      if (typeof item.isFixed === 'boolean') return item.isFixed;
+      const M = Math.max(1, Number(item.maxScore) || 100);
+      const mean = Number(item.mean) || 0;
+      const median = Number(item.median) || 0;
+      const title = String(item.title || '').trim();
+      if (title.includes('출석') && mean >= M * 0.95) return true;
+      if (mean >= M * 0.985 && median >= M * 0.985) return true;
+      return false;
+    }
+
     function computeAutoEstimatedSD({ mean, median, maxScore = 100, knownScores = [], myScore = null }) {
-      const M = Math.max(10, Number(maxScore) || 100);
-      const mu = Math.min(Math.max(Number(mean) / M, 0.02), 0.98);
-      const med = Math.min(Math.max(Number(median) / M, 0.02), 0.98);
+      // FIXED: Allow maxScore down to 1 (supports 5-pt attendance & 6-pt homework)
+      const M = Math.max(1, Number(maxScore) || 100);
+      const mu = Math.min(Math.max(Number(mean) / M, 0.01), 0.99);
+      const med = Math.min(Math.max(Number(median) / M, 0.01), 0.99);
       const skewGap = Math.abs(mu - med);
-      const maxPossibleVar = mu * (1 - mu);
+      const maxPossibleVar = Math.max(0.0025, mu * (1 - mu));
       let estSigmaNorm = Math.min(
-        Math.max(Math.sqrt(maxPossibleVar) * 0.29 + skewGap * 1.35, 0.045),
-        Math.sqrt(maxPossibleVar * 0.82)
+        Math.max(Math.sqrt(maxPossibleVar) * 0.29 + skewGap * 1.35, 0.035),
+        Math.sqrt(maxPossibleVar * 0.85)
       );
 
       const validKnown = [
@@ -730,30 +757,31 @@
         const weight = Math.min(0.55, validKnown.length * 0.08);
         estSigmaNorm = estSigmaNorm * (1 - weight) + sampleSpread * weight;
       }
-      return Number(Math.min(Math.max(estSigmaNorm * M, M * 0.03), M * 0.42).toFixed(1));
+      return Number(Math.min(Math.max(estSigmaNorm * M, M * 0.02), M * 0.45).toFixed(2));
     }
 
     function fitDistributions({ mean, median, sd, isCustomSd = false, maxScore = 100 }) {
-      const M = Math.max(10, Number(maxScore) || 100);
-      const mu = Math.min(Math.max(Number(mean) / M, 0.02), 0.98);
-      const med = Math.min(Math.max(Number(median) / M, 0.02), 0.98);
+      // FIXED: M lower bound set to 1 instead of 10!
+      const M = Math.max(1, Number(maxScore) || 100);
+      const mu = Math.min(Math.max(Number(mean) / M, 0.01), 0.99);
+      const med = Math.min(Math.max(Number(median) / M, 0.01), 0.99);
       const numericSd = Number(sd);
       const sigma = !isNaN(numericSd) && numericSd > 0
-        ? Math.min(Math.max(numericSd / M, 0.015), 0.45)
-        : Math.min(Math.max(computeAutoEstimatedSD({ mean, median, maxScore: M }) / M, 0.03), 0.42);
+        ? Math.min(Math.max(numericSd / M, 0.015), 0.46)
+        : Math.min(Math.max(computeAutoEstimatedSD({ mean, median, maxScore: M }) / M, 0.025), 0.44);
 
-      const maxVar = mu * (1 - mu) * 0.98;
+      const maxVar = Math.max(1e-4, mu * (1 - mu) * 0.98);
       const v = Math.min(sigma * sigma, maxVar);
-      const betaNu = Math.max(0.6, (mu * (1 - mu)) / v - 1);
+      const betaNu = Math.max(0.45, (mu * (1 - mu)) / v - 1);
 
-      let bestAlpha = Math.max(0.35, mu * betaNu);
-      let bestBeta = Math.max(0.35, (1 - mu) * betaNu);
+      let bestAlpha = Math.max(0.25, mu * betaNu);
+      let bestBeta = Math.max(0.25, (1 - mu) * betaNu);
       let minBetaLoss = Infinity;
 
       for (let mShift = -0.06; mShift <= 0.06; mShift += 0.005) {
-        const testMu = Math.min(Math.max(mu + mShift, 0.03), 0.97);
+        const testMu = Math.min(Math.max(mu + mShift, 0.015), 0.985);
         for (let nuScale = 0.65; nuScale <= 1.45; nuScale += 0.1) {
-          const testNu = Math.max(0.6, betaNu * nuScale);
+          const testNu = Math.max(0.45, betaNu * nuScale);
           const a = testMu * testNu;
           const b = (1 - testMu) * testNu;
           const cdfAtMed = betaCDF(med, a, b);
@@ -808,14 +836,14 @@
       let recommendationReason = '';
       if (bestAlpha < 1 && bestBeta < 1) {
         recommended = 'beta';
-        recommendationReason = '표준편차가 커서 상·하위권 양극화(U자형)를 포착하는 베타 분포가 적합합니다.';
+        recommendationReason = '표준편차가 커서 상·하위권 양극화(U자형) 및 0점·만점 경계 밀집을 포착하는 베타 분포가 적합합니다.';
       } else if (skewRatio > 0.12) {
         if (med > 0.78 || med < 0.22) {
           recommended = 'logitNormal';
           recommendationReason = '점수가 경계 부근에 밀집해 있고 평균·중앙값 격차가 커서 로짓-정규분포가 우수합니다.';
         } else {
           recommended = 'beta';
-          recommendationReason = `평균(${(mu * M).toFixed(1)})과 중앙값(${(med * M).toFixed(1)})의 비대칭성을 [0, ${M}] 안에서 자연스럽게 모사합니다.`;
+          recommendationReason = `평균(${(mu * M).toFixed(2)})과 중앙값(${(med * M).toFixed(2)})의 비대칭성을 [0, ${M}] 안에서 자연스럽게 모사합니다.`;
         }
       } else {
         recommended = 'skewNormal';
@@ -833,7 +861,7 @@
     }
 
     function evalNormalizedPDF(x, distKey, fit) {
-      const xc = Math.min(Math.max(x, 0.001), 0.999);
+      const xc = Math.min(Math.max(x, 0.0005), 0.9995);
       if (distKey === 'beta') return betaPDF(xc, fit.beta.alpha, fit.beta.beta);
       if (distKey === 'logitNormal') {
         const { muL, sigmaL } = fit.logitNormal;
@@ -924,7 +952,7 @@
 
     function runMonteCarloSimulation({
       fit, distTable, myScore, knownScores, studentCount,
-      iterations = 3000, enforceMoments = true, seedNonce = 1, gradeCutRatios
+      iterations = 10000, enforceMoments = true, seedNonce = 1, gradeCutRatios
     }) {
       const M = fit.M;
       const N = Math.max(Math.min(Number(studentCount) || 40, 500), knownScores.length + 2);
@@ -939,11 +967,11 @@
       const fixedSum = fixedScores.reduce((a, b) => a + b, 0);
       const targetTotalSum = classMean * N;
       const targetRemainingMean = Math.min(
-        Math.max((targetTotalSum - fixedSum) / remainingCount, M * 0.02),
-        M * 0.98
+        Math.max((targetTotalSum - fixedSum) / remainingCount, M * 0.01),
+        M * 0.99
       );
 
-      const medianCdfProb = Math.min(Math.max(distTable.getCDF(classMedian), 0.08), 0.92);
+      const medianCdfProb = Math.min(Math.max(distTable.getCDF(classMedian), 0.05), 0.95);
       const knownBelowMed = fixedScores.filter((s) => s < classMedian).length;
       const knownAboveMed = K - knownBelowMed;
       const totalTargetBelow = Math.round(N * 0.5);
@@ -1005,11 +1033,27 @@
           drawnSum += s;
         }
 
+        // FIXED: Piecewise scaling that shifts the mean WITHOUT pushing scores across classMedian!
         if (enforceMoments && remainingCount > 2) {
           const drawnMean = drawnSum / remainingCount;
-          const meanShift = (targetRemainingMean - drawnMean) * 0.72;
-          for (let i = K; i < N; i++) {
-            simScores[i] = Math.min(Math.max(simScores[i] + meanShift, 0), M);
+          const diff = (targetRemainingMean - drawnMean) * 0.8;
+          if (Math.abs(diff) > 1e-4) {
+            for (let i = K; i < N; i++) {
+              const s = simScores[i];
+              if (diff > 0) {
+                // Need to increase mean without crossing classMedian from below or M from above
+                const cap = s < classMedian ? classMedian - 1e-3 : M;
+                const room = Math.max(0, cap - s);
+                const maxRoom = s < classMedian ? Math.max(0.5, classMedian) : Math.max(0.5, M - classMedian);
+                simScores[i] = Math.min(cap, s + diff * (room / maxRoom) * 1.35);
+              } else {
+                // Need to decrease mean without crossing classMedian from above or 0 from below
+                const floor = s >= classMedian ? classMedian : 0;
+                const room = Math.max(0, s - floor);
+                const maxRoom = s >= classMedian ? Math.max(0.5, M - classMedian) : Math.max(0.5, classMedian);
+                simScores[i] = Math.max(floor, s + diff * (room / maxRoom) * 1.35);
+              }
+            }
           }
         }
 
@@ -1119,9 +1163,9 @@
     // =========================================================================
     // 2. BROWSER CACHE STORAGE (Cache API + IndexedDB + window.name)
     // =========================================================================
-    const CACHE_NAME = 'personal-grade-analyzer-v2';
-    const CACHE_REQ_URL = '/__personal_grade_analyzer_state__.json';
-    const IDB_NAME = 'PersonalGradeAnalyzerDB';
+    const CACHE_NAME = 'personal-grade-analyzer-v2.1';
+    const CACHE_REQ_URL = '/__personal_grade_analyzer_state_v2_1__.json';
+    const IDB_NAME = 'PersonalGradeAnalyzerDB_v2_1';
     const IDB_STORE = 'stateStore';
 
     function openIndexedDB() {
@@ -1157,7 +1201,7 @@
         });
       } catch (e) {}
       try {
-        window.name = 'PGA_CACHE:' + jsonStr;
+        window.name = 'PGA_CACHE_V21:' + jsonStr;
       } catch (e) {}
     }
 
@@ -1182,20 +1226,20 @@
           const tx = db.transaction(IDB_STORE, 'readonly');
           const req = tx.objectStore(IDB_STORE).get('appState');
           req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
+          req.onerror = () => reject(tx.error);
         });
         if (data) return data;
       } catch (e) {}
       try {
-        if (window.name && window.name.startsWith('PGA_CACHE:')) {
-          return JSON.parse(window.name.slice('PGA_CACHE:'.length));
+        if (window.name && window.name.startsWith('PGA_CACHE_V21:')) {
+          return JSON.parse(window.name.slice('PGA_CACHE_V21:'.length));
         }
       } catch (e) {}
       return null;
     }
 
     // =========================================================================
-    // 3. DEFAULT SUBJECT FOLDERS & SYLLABUS ITEMS
+    // 3. USER'S 4-COURSE BACKUP DATA AS DEFAULT FOLDERS
     // =========================================================================
     const DIST_META = {
       auto: { name: 'AI 자동 최적 추천', shortName: '자동 추천', color: '#6366f1', badge: '최적 적합' },
@@ -1206,24 +1250,24 @@
       ensemble: { name: '앙상블 혼합 (Ensemble)', shortName: '앙상블 혼합', color: '#8b5cf6', badge: '베타+로짓+왜도 혼합' }
     };
 
-    const DEFAULT_FOLDERS = [
+    const USER_BACKUP_FOLDERS = [
       {
         id: 'folder-ds',
-        name: '데이터사이언스개론',
-        studentCount: 45,
+        name: '선형대수2',
+        studentCount: 57,
         targetTier: 'APlus',
         gradeCutRatios: { aPlus: 15, aZero: 35, bPlus: 55, bZero: 75, cPlus: 90 },
         items: [
           {
             id: 'item-ds-mid',
             title: '중간고사',
-            status: 'completed',
-            weight: 35,
+            status: 'upcoming',
+            weight: 33,
             maxScore: 100,
             mean: 76.4,
-            median: 82.0,
+            median: 82,
             sdMode: 'auto',
-            sdInput: 14.8,
+            sdInput: 16.8,
             selectedDist: 'auto',
             myScore: 88.5,
             knownScores: [95, 91, 84, 79, 68, 52],
@@ -1231,46 +1275,152 @@
           },
           {
             id: 'item-ds-quiz1',
-            title: '퀴즈 1',
-            status: 'completed',
-            weight: 10,
-            maxScore: 20,
-            mean: 15.2,
-            median: 16.0,
-            sdMode: 'auto',
-            sdInput: 3.1,
-            selectedDist: 'auto',
-            myScore: 18.5,
-            knownScores: [19.5, 17, 14],
-            mcResult: null
-          },
-          {
-            id: 'item-ds-final',
             title: '기말고사',
             status: 'upcoming',
-            weight: 40,
+            weight: 35,
             maxScore: 100,
             mean: 75.0,
             median: 78.0,
             sdMode: 'auto',
             sdInput: 15.0,
             selectedDist: 'auto',
-            myScore: 85.0,
+            myScore: 88.0,
             knownScores: [],
             mcResult: null
           },
           {
-            id: 'item-ds-hw',
-            title: '과제 및 출석',
+            id: 'item-ds-final',
+            title: 'Quiz1',
             status: 'completed',
-            weight: 15,
-            maxScore: 100,
-            mean: 92.0,
-            median: 95.0,
+            weight: 3.75,
+            maxScore: 50,
+            mean: 13.98,
+            median: 12,
             sdMode: 'custom',
-            sdInput: 5.5,
+            sdInput: 12.1,
+            selectedDist: 'auto',
+            myScore: 50,
+            knownScores: [3],
+            mcResult: null
+          },
+          {
+            id: 'item-ds-hw',
+            title: 'Quiz2',
+            status: 'completed',
+            weight: 3.75,
+            maxScore: 50,
+            mean: 22.95,
+            median: 21,
+            sdMode: 'auto',
+            sdInput: 11.4,
             selectedDist: 'beta',
-            myScore: 96.0,
+            myScore: 50,
+            knownScores: [29],
+            mcResult: null
+          },
+          {
+            id: 'item-1792204704089',
+            title: 'Quiz3',
+            status: 'upcoming',
+            weight: 3.75,
+            maxScore: 50,
+            mean: 25,
+            median: 25,
+            sdMode: 'auto',
+            sdInput: 10.5,
+            selectedDist: 'auto',
+            myScore: 45,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792204704271',
+            title: 'Quiz4',
+            status: 'upcoming',
+            weight: 3.75,
+            maxScore: 50,
+            mean: 25,
+            median: 25,
+            sdMode: 'auto',
+            sdInput: 10.5,
+            selectedDist: 'auto',
+            myScore: 45,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792204704444',
+            title: '과제1',
+            status: 'completed',
+            weight: 3,
+            maxScore: 6,
+            mean: 4.66,
+            median: 6,
+            sdMode: 'auto',
+            sdInput: 1.45,
+            selectedDist: 'auto',
+            myScore: 6,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792204746583',
+            title: '과제2',
+            status: 'upcoming',
+            weight: 3,
+            maxScore: 6,
+            mean: 4.8,
+            median: 5.5,
+            sdMode: 'auto',
+            sdInput: 1.2,
+            selectedDist: 'auto',
+            myScore: 6,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792204747218',
+            title: '과제3',
+            status: 'upcoming',
+            weight: 3,
+            maxScore: 6,
+            mean: 4.8,
+            median: 5.5,
+            sdMode: 'auto',
+            sdInput: 1.2,
+            selectedDist: 'auto',
+            myScore: 6,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792204747941',
+            title: '과제4',
+            status: 'upcoming',
+            weight: 3,
+            maxScore: 6,
+            mean: 4.8,
+            median: 5.5,
+            sdMode: 'auto',
+            sdInput: 1.2,
+            selectedDist: 'auto',
+            myScore: 6,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792204953507',
+            title: '출석',
+            status: 'completed',
+            isFixed: true,
+            weight: 5,
+            maxScore: 5,
+            mean: 5,
+            median: 5,
+            sdMode: 'custom',
+            sdInput: 0.5,
+            selectedDist: 'auto',
+            myScore: 5,
             knownScores: [],
             mcResult: null
           }
@@ -1278,24 +1428,24 @@
       },
       {
         id: 'folder-algo',
-        name: '알고리즘분석',
-        studentCount: 60,
-        targetTier: 'A0',
-        gradeCutRatios: { aPlus: 15, aZero: 35, bPlus: 55, bZero: 75, cPlus: 90 },
+        name: '정수론',
+        studentCount: 54,
+        targetTier: 'APlus',
+        gradeCutRatios: { aPlus: 15, aZero: 30, bPlus: 50, bZero: 70, cPlus: 95 },
         items: [
           {
             id: 'item-algo-mid',
             title: '중간고사',
-            status: 'completed',
-            weight: 40,
+            status: 'upcoming',
+            weight: 45,
             maxScore: 100,
-            mean: 58.2,
-            median: 52.5,
+            mean: 64,
+            median: 67,
             sdMode: 'custom',
-            sdInput: 18.0,
+            sdInput: 23.1,
             selectedDist: 'beta',
-            myScore: 71.5,
-            knownScores: [89, 75, 63, 48, 39],
+            myScore: 87,
+            knownScores: [],
             mcResult: null
           },
           {
@@ -1304,27 +1454,72 @@
             status: 'upcoming',
             weight: 45,
             maxScore: 100,
-            mean: 60.0,
-            median: 58.0,
-            sdMode: 'custom',
-            sdInput: 17.5,
+            mean: 64,
+            median: 65,
+            sdMode: 'auto',
+            sdInput: 20.0,
             selectedDist: 'auto',
-            myScore: 75.0,
+            myScore: 85,
             knownScores: [],
             mcResult: null
           },
           {
             id: 'item-algo-proj',
-            title: '프로그래밍 과제',
-            status: 'upcoming',
-            weight: 15,
-            maxScore: 100,
-            mean: 82.0,
-            median: 85.0,
+            title: 'Quiz1',
+            status: 'completed',
+            weight: 2.5,
+            maxScore: 20,
+            mean: 9.59,
+            median: 10,
             sdMode: 'auto',
-            sdInput: 11.0,
+            sdInput: 6.9,
             selectedDist: 'auto',
-            myScore: 90.0,
+            myScore: 20,
+            knownScores: [20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            mcResult: null
+          },
+          {
+            id: 'item-1792203035243',
+            title: 'Quiz2',
+            status: 'completed',
+            weight: 2.5,
+            maxScore: 20,
+            mean: 8.06,
+            median: 7.5,
+            sdMode: 'auto',
+            sdInput: 6.4,
+            selectedDist: 'auto',
+            myScore: 20,
+            knownScores: [18, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            mcResult: null
+          },
+          {
+            id: 'item-1792203035677',
+            title: 'Quiz3',
+            status: 'upcoming',
+            weight: 2.5,
+            maxScore: 20,
+            mean: 10,
+            median: 10,
+            sdMode: 'auto',
+            sdInput: 5.5,
+            selectedDist: 'auto',
+            myScore: 18,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792203036020',
+            title: 'Quiz4',
+            status: 'upcoming',
+            weight: 2.5,
+            maxScore: 20,
+            mean: 10,
+            median: 10,
+            sdMode: 'auto',
+            sdInput: 5.5,
+            selectedDist: 'auto',
+            myScore: 18,
             knownScores: [],
             mcResult: null
           }
@@ -1332,53 +1527,214 @@
       },
       {
         id: 'folder-econ',
-        name: '거시경제학',
-        studentCount: 38,
-        targetTier: 'A0',
-        gradeCutRatios: { aPlus: 20, aZero: 40, bPlus: 65, bZero: 85, cPlus: 95 },
+        name: '편미분방정식',
+        studentCount: 32,
+        targetTier: 'APlus',
+        gradeCutRatios: { aPlus: 15, aZero: 30, bPlus: 50, bZero: 70, cPlus: 95 },
         items: [
           {
             id: 'item-econ-mid',
             title: '중간고사',
-            status: 'completed',
-            weight: 45,
-            maxScore: 100,
-            mean: 71.0,
-            median: 74.5,
-            sdMode: 'auto',
-            sdInput: 14.2,
-            selectedDist: 'logitNormal',
-            myScore: 81.0,
-            knownScores: [86, 77, 65],
-            mcResult: null
-          },
-          {
-            id: 'item-econ-final',
-            title: '기말고사',
             status: 'upcoming',
-            weight: 45,
-            maxScore: 100,
-            mean: 72.0,
-            median: 74.0,
+            weight: 40,
+            maxScore: 40,
+            mean: 24,
+            median: 25,
             sdMode: 'auto',
-            sdInput: 14.0,
-            selectedDist: 'auto',
-            myScore: 82.0,
+            sdInput: 7.5,
+            selectedDist: 'logitNormal',
+            myScore: 34,
             knownScores: [],
             mcResult: null
           },
           {
-            id: 'item-econ-att',
-            title: '출석·퀴즈',
+            id: 'item-econ-final',
+            title: 'Quiz1',
             status: 'completed',
-            weight: 10,
-            maxScore: 100,
-            mean: 90.0,
-            median: 92.0,
+            weight: 3.3,
+            maxScore: 10,
+            mean: 3.72,
+            median: 4,
             sdMode: 'custom',
-            sdInput: 6.0,
+            sdInput: 2.31,
             selectedDist: 'auto',
-            myScore: 95.0,
+            myScore: 7,
+            knownScores: [3],
+            mcResult: null
+          },
+          {
+            id: 'item-econ-att',
+            title: '출석',
+            status: 'completed',
+            isFixed: true,
+            weight: 5,
+            maxScore: 5,
+            mean: 5,
+            median: 5,
+            sdMode: 'custom',
+            sdInput: 0.5,
+            selectedDist: 'auto',
+            myScore: 5,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792202803576',
+            title: 'Quiz2',
+            status: 'upcoming',
+            weight: 3.3,
+            maxScore: 10,
+            mean: 5,
+            median: 5,
+            sdMode: 'auto',
+            sdInput: 2.2,
+            selectedDist: 'auto',
+            myScore: 8.5,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792202807337',
+            title: 'Quiz3',
+            status: 'upcoming',
+            weight: 3.4,
+            maxScore: 10,
+            mean: 5,
+            median: 5,
+            sdMode: 'auto',
+            sdInput: 2.2,
+            selectedDist: 'auto',
+            myScore: 8.5,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792202808043',
+            title: '기말고사',
+            status: 'upcoming',
+            weight: 45,
+            maxScore: 45,
+            mean: 27,
+            median: 28,
+            sdMode: 'auto',
+            sdInput: 8.5,
+            selectedDist: 'auto',
+            myScore: 38,
+            knownScores: [],
+            mcResult: null
+          }
+        ]
+      },
+      {
+        id: 'folder-1792205069120',
+        name: '해석개론2',
+        studentCount: 53,
+        targetTier: 'A0',
+        gradeCutRatios: { aPlus: 15, aZero: 35, bPlus: 55, bZero: 75, cPlus: 90 },
+        items: [
+          {
+            id: 'item-1792205069120-1',
+            title: '중간고사',
+            status: 'upcoming',
+            weight: 40,
+            maxScore: 100,
+            mean: 72,
+            median: 75,
+            sdMode: 'auto',
+            sdInput: 17.1,
+            selectedDist: 'auto',
+            myScore: 84,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792205069120-2',
+            title: '기말고사',
+            status: 'upcoming',
+            weight: 40,
+            maxScore: 100,
+            mean: 72,
+            median: 75,
+            sdMode: 'auto',
+            sdInput: 17.1,
+            selectedDist: 'auto',
+            myScore: 84,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792205069120-3',
+            title: '출석',
+            status: 'completed',
+            isFixed: true,
+            weight: 10,
+            maxScore: 10,
+            mean: 10,
+            median: 10,
+            sdMode: 'custom',
+            sdInput: 0.5,
+            selectedDist: 'auto',
+            myScore: 10,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792205092022',
+            title: '과제1',
+            status: 'completed',
+            weight: 2.5,
+            maxScore: 70,
+            mean: 59.27,
+            median: 68,
+            sdMode: 'auto',
+            sdInput: 14.2,
+            selectedDist: 'auto',
+            myScore: 68,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792205092449',
+            title: '과제2',
+            status: 'completed',
+            weight: 2.5,
+            maxScore: 90,
+            mean: 77.76,
+            median: 85,
+            sdMode: 'auto',
+            sdInput: 15.8,
+            selectedDist: 'auto',
+            myScore: 83,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792205092764',
+            title: '과제3',
+            status: 'upcoming',
+            weight: 2.5,
+            maxScore: 100,
+            mean: 75,
+            median: 77,
+            sdMode: 'auto',
+            sdInput: 15.3,
+            selectedDist: 'auto',
+            myScore: 85,
+            knownScores: [],
+            mcResult: null
+          },
+          {
+            id: 'item-1792205093070',
+            title: '과제4',
+            status: 'upcoming',
+            weight: 2.5,
+            maxScore: 100,
+            mean: 75,
+            median: 77,
+            sdMode: 'auto',
+            sdInput: 15.3,
+            selectedDist: 'auto',
+            myScore: 85,
             knownScores: [],
             mcResult: null
           }
@@ -1387,18 +1743,18 @@
     ];
 
     const state = {
-      theme: 'dark', // 'light' | 'dark'
-      folders: JSON.parse(JSON.stringify(DEFAULT_FOLDERS)),
+      theme: 'dark',
+      folders: JSON.parse(JSON.stringify(USER_BACKUP_FOLDERS)),
       activeFolderId: 'folder-ds',
-      activeItemId: 'item-ds-mid', // Either an item ID or 'FOLDER_PLANNER'
-      activeSubTab: 'distribution', // 'distribution' | 'montecarlo' | 'gradetier'
+      activeItemId: 'FOLDER_PLANNER', // Start directly on Folder Planner so user sees fixed analysis right away!
+      activeSubTab: 'distribution',
       showAllCurves: true,
       showMcHistogramOnMain: true,
-      mcIterations: 3000,
+      mcIterations: 10000,
       enforceMoments: true,
       mcSeedNonce: 1,
-      mcNeedsUpdate: true, // Tracks if inputs changed since last manual MC run
-      upcomingAssumption: 'item', // 'item' | 'prev'
+      mcNeedsUpdate: true,
+      upcomingAssumption: 'prev', // 'prev' (완료된 시험 난이도 연동) | 'item' (예정 시험에 입력한 예상 평균/점수 시뮬레이션)
       hoverScore: null
     };
 
@@ -1409,7 +1765,8 @@
       activeSd: 14.8,
       autoEstimatedSd: 14.8,
       myScore: 88.5,
-      studentCount: 45,
+      studentCount: 57,
+      isFixed: false,
       fit: null,
       effectiveDistKey: 'beta',
       allDistTables: null,
@@ -1417,7 +1774,6 @@
       myContinuousStats: null
     };
 
-    // Helper: Get active folder & active item
     function getActiveFolder() {
       return state.folders.find((f) => f.id === state.activeFolderId) || state.folders[0];
     }
@@ -1428,7 +1784,6 @@
       return folder.items.find((it) => it.id === state.activeItemId) || folder.items[0];
     }
 
-    // Helper: Safely update input value ONLY if not currently focused (prevents decimal eating!)
     function setInputValueSafe(id, val) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1468,11 +1823,17 @@
       if (computed.fit) renderDistributionSVG();
     }
 
-    // Compute stats for any single exam item (used both in individual view and folder planner)
+    // FIXED: Compute item continuous stats with proportional clamping [0.005*M, 0.995*M] and fixed-item awareness
     function computeItemContinuousStats(item, studentCount) {
-      const M = Math.max(5, Number(item.maxScore) || 100);
-      const mean = Math.min(Math.max(Number(item.mean) || M * 0.65, 0.5), M - 0.5);
-      const median = Math.min(Math.max(Number(item.median) || mean, 0.5), M - 0.5);
+      const M = Math.max(1, Number(item.maxScore) || 100);
+      const isFixed = isNonDiscriminatingItem(item);
+      const rawMean = Number(item.mean) !== undefined && !isNaN(Number(item.mean)) ? Number(item.mean) : M * 0.65;
+      const rawMedian = Number(item.median) !== undefined && !isNaN(Number(item.median)) ? Number(item.median) : rawMean;
+
+      // Proportional clamping instead of hardcoded 0.5!
+      const pad = M * 0.005;
+      const mean = Math.min(Math.max(rawMean, pad), M - pad);
+      const median = Math.min(Math.max(rawMedian, pad), M - pad);
       const myScore = Math.min(Math.max(Number(item.myScore) || 0, 0), M);
 
       const autoSd = computeAutoEstimatedSD({
@@ -1480,7 +1841,7 @@
       });
       const activeSd = item.sdMode === 'auto'
         ? autoSd
-        : Math.min(Math.max(Number(item.sdInput) || autoSd, 0.5), M * 0.45);
+        : Math.min(Math.max(Number(item.sdInput) || autoSd, M * 0.01), M * 0.46);
 
       const fit = fitDistributions({
         mean, median, sd: activeSd, isCustomSd: item.sdMode === 'custom', maxScore: M
@@ -1488,29 +1849,47 @@
       const effectiveDistKey = (!item.selectedDist || item.selectedDist === 'auto') ? fit.recommended : item.selectedDist;
       const distTable = buildDistributionTable(effectiveDistKey, fit);
 
+      if (isFixed) {
+        // Non-discriminating item (e.g. Attendance where everyone gets full score): Z = 0 unless student lost points
+        const penaltyZ = myScore < rawMean ? (myScore - rawMean) / Math.max(activeSd, 0.5) : 0;
+        const topPercent = penaltyZ < 0 ? (1 - stdNormalCDF(penaltyZ)) * 100 : 50.0;
+        return {
+          M, mean: rawMean, median: rawMedian, autoSd, activeSd, myScore, isFixed: true,
+          fit, effectiveDistKey, distTable,
+          cdfVal: 1 - topPercent / 100,
+          topPercent,
+          zScore: penaltyZ,
+          tScore: 50 + 10 * penaltyZ,
+          effectiveSd: activeSd,
+          estRank: penaltyZ < 0 ? Math.max(1, Math.round((topPercent / 100) * studentCount)) : 1
+        };
+      }
+
       const cdfVal = distTable.getCDF(myScore);
       const topPercent = Math.max(0.01, (1 - cdfVal) * 100);
       const effectiveSd = fit.sigma * fit.M;
-      const zScore = (myScore - mean) / Math.max(effectiveSd, 0.5);
+      const zScore = (myScore - mean) / Math.max(effectiveSd, M * 0.01);
       const tScore = 50 + 10 * zScore;
       const estRank = Math.max(1, Math.min(studentCount, Math.round((topPercent / 100) * studentCount)));
 
       return {
-        M, mean, median, autoSd, activeSd, myScore, fit, effectiveDistKey, distTable,
+        M, mean, median, autoSd, activeSd, myScore, isFixed: false,
+        fit, effectiveDistKey, distTable,
         cdfVal, topPercent, zScore, tScore, effectiveSd, estRank
       };
     }
 
-    // Recalculate Continuous Distributions ONLY (Monte Carlo is NOT run here!)
     function recalculateContinuousOnly(persistToCache = true) {
       const folder = getActiveFolder();
       const studentCount = Math.max(5, Math.min(500, parseInt(folder.studentCount, 10) || 40));
       const item = getActiveItem();
 
       if (item) {
-        const M = Math.max(5, Number(item.maxScore) || 100);
-        const mean = Math.min(Math.max(Number(item.mean) || M * 0.65, 0.5), M - 0.5);
-        const median = Math.min(Math.max(Number(item.median) || mean, 0.5), M - 0.5);
+        const M = Math.max(1, Number(item.maxScore) || 100);
+        const isFixed = isNonDiscriminatingItem(item);
+        const pad = M * 0.005;
+        const mean = Math.min(Math.max(Number(item.mean) || M * 0.65, pad), M - pad);
+        const median = Math.min(Math.max(Number(item.median) || mean, pad), M - pad);
         const myScore = Math.min(Math.max(Number(item.myScore) || 0, 0), M);
 
         const autoEstimatedSd = computeAutoEstimatedSD({
@@ -1520,7 +1899,7 @@
         if (item.sdMode === 'auto') {
           item.sdInput = autoEstimatedSd;
         }
-        const activeSd = Math.min(Math.max(Number(item.sdInput) || autoEstimatedSd, 0.5), M * 0.45);
+        const activeSd = Math.min(Math.max(Number(item.sdInput) || autoEstimatedSd, M * 0.01), M * 0.46);
 
         const fit = fitDistributions({
           mean, median, sd: activeSd, isCustomSd: item.sdMode === 'custom', maxScore: M
@@ -1538,13 +1917,15 @@
 
         const activeDistTable = allDistTables[effectiveDistKey] || allDistTables.beta;
         const cdfVal = activeDistTable.getCDF(myScore);
-        const topPercent = Math.max(0.01, (1 - cdfVal) * 100);
+        const topPercent = isFixed && myScore >= mean ? 50.0 : Math.max(0.01, (1 - cdfVal) * 100);
         const effectiveSd = fit.sigma * fit.M;
-        const zScore = (myScore - mean) / Math.max(effectiveSd, 0.5);
+        const zScore = isFixed && myScore >= mean
+          ? 0
+          : (myScore - mean) / Math.max(effectiveSd, M * 0.01);
         const tScore = 50 + 10 * zScore;
 
         computed = {
-          M, mean, median, activeSd, autoEstimatedSd, myScore, studentCount,
+          M, mean, median, activeSd, autoEstimatedSd, myScore, studentCount, isFixed,
           fit, effectiveDistKey, allDistTables, activeDistTable,
           myContinuousStats: { cdfVal, topPercent, zScore, tScore, effectiveSd }
         };
@@ -1557,12 +1938,12 @@
           theme: state.theme,
           folders: state.folders,
           activeFolderId: state.activeFolderId,
-          activeItemId: state.activeItemId
+          activeItemId: state.activeItemId,
+          upcomingAssumption: state.upcomingAssumption
         });
       }
     }
 
-    // Explicit Manual Monte Carlo Trigger
     function executeMonteCarloNow() {
       const folder = getActiveFolder();
       const item = getActiveItem();
@@ -1587,13 +1968,26 @@
         theme: state.theme,
         folders: state.folders,
         activeFolderId: state.activeFolderId,
-        activeItemId: state.activeItemId
+        activeItemId: state.activeItemId,
+        upcomingAssumption: state.upcomingAssumption
       });
     }
 
     // =========================================================================
-    // 4. FOLDER-LEVEL FUTURE EXAM TARGET ANALYZER ("앞으로 얼마나 잘 봐야 하는지")
+    // 4. FOLDER-LEVEL FUTURE EXAM TARGET ANALYZER (FIXED COVARIANCE & REF DIST)
     // =========================================================================
+    function computePairwiseCompositeSD(weights, rho = 0.65) {
+      if (!weights || weights.length === 0) return 0;
+      let varSum = 0;
+      for (let i = 0; i < weights.length; i++) {
+        varSum += weights[i] * weights[i];
+        for (let j = i + 1; j < weights.length; j++) {
+          varSum += 2 * rho * weights[i] * weights[j];
+        }
+      }
+      return Math.sqrt(Math.max(0, varSum));
+    }
+
     function computeFolderTargetAnalysis(folder) {
       const N = Math.max(5, Number(folder.studentCount) || 40);
       const completedRaw = folder.items.filter((it) => it.status === 'completed');
@@ -1606,44 +2000,76 @@
 
       const upcomingList = upcomingRaw.map((it) => ({
         item: it,
+        stats: computeItemContinuousStats(it, N),
         maxScore: Math.max(1, Number(it.maxScore) || 100),
         weight: Math.max(0, Number(it.weight) || 0)
       }));
 
+      // Separate relative-discriminating completed items from fixed items (e.g., Attendance)
+      const discCompletedList = completedList.filter((x) => !x.stats.isFixed || x.stats.zScore < 0);
+      const fixedCompletedWeight = completedList
+        .filter((x) => x.stats.isFixed && x.stats.zScore >= 0)
+        .reduce((acc, x) => acc + (Number(x.item.weight) || 0), 0);
+
       const completedWeight = completedList.reduce((acc, x) => acc + (Number(x.item.weight) || 0), 0);
+      const discCompletedWeight = discCompletedList.reduce((acc, x) => acc + (Number(x.item.weight) || 0), 0);
       const upcomingWeight = upcomingList.reduce((acc, x) => acc + x.weight, 0);
       const totalWeight = completedWeight + upcomingWeight;
 
-      // Weighted composite Z-score and normalized difficulty from completed exams ONLY
+      // Weighted composite Z-score from discriminating completed exams ONLY
       let completedWeightedZSum = 0;
       let weightedNormMeanSum = 0;
       let weightedNormSdSum = 0;
-      completedList.forEach((x) => {
+
+      discCompletedList.forEach((x) => {
         const w = Number(x.item.weight) || 0;
         completedWeightedZSum += w * x.stats.zScore;
         weightedNormMeanSum += w * (x.stats.mean / x.stats.M);
         weightedNormSdSum += w * (x.stats.effectiveSd / x.stats.M);
       });
 
-      const hasCompleted = completedWeight > 0 && completedList.length > 0;
-      const currentAvgZ = hasCompleted ? completedWeightedZSum / completedWeight : 0;
+      const rho = 0.65;
+      const discWeights = discCompletedList.map((x) => Number(x.item.weight) || 0);
+      const upcomingWeights = upcomingList.map((u) => u.weight);
+
+      // True standard deviation of the completed linear combination: sqrt(sum w_i^2 + 2*rho*sum w_i*w_j)
+      const completedBlockSD = computePairwiseCompositeSD(discWeights, rho);
+      const hasCompleted = discCompletedWeight > 0 && completedBlockSD > 0;
+
+      // Standardized composite Z of completed exams so far (distributed ~ N(0, 1))
+      const currentAvgZ = hasCompleted ? completedWeightedZSum / completedBlockSD : 0;
       const currentTopPct = (1 - stdNormalCDF(currentAvgZ)) * 100;
       const currentEstRank = Math.max(1, Math.round((currentTopPct / 100) * N));
 
-      // Reference normalized distribution derived automatically from completed exams
-      const refNormMean = hasCompleted ? weightedNormMeanSum / completedWeight : 0.72;
-      const refNormSd = hasCompleted ? weightedNormSdSum / completedWeight : 0.14;
-      const refDistTable = hasCompleted
-        ? completedList[completedList.length - 1].stats.distTable
-        : null;
+      // Reference normalized distribution derived ONLY from discriminating completed exams (NOT Attendance!)
+      const refNormMean = hasCompleted ? weightedNormMeanSum / discCompletedWeight : 0.68;
+      const refNormSd = hasCompleted ? weightedNormSdSum / discCompletedWeight : 0.16;
 
-      // Variance of composite score: Var(w_c * Z_c + w_u * Z_u) with correlation rho = 0.65
-      const rho = 0.65;
-      const w1 = completedWeight;
-      const w2 = Math.max(0, upcomingWeight);
-      const compositeScale = w1 > 0 && w2 > 0
-        ? Math.sqrt(w1 * w1 + w2 * w2 + 2 * rho * w1 * w2)
-        : Math.max(1, w1 + w2);
+      // Helper: Weighted composite quantile across all discriminating completed exams
+      const sampleCompositeCompletedQuantile = (p) => {
+        if (!hasCompleted) return Math.min(0.99, Math.max(0.01, refNormMean + stdNormalInv(p) * refNormSd));
+        let qSum = 0;
+        discCompletedList.forEach((x) => {
+          const w = Number(x.item.weight) || 0;
+          qSum += w * x.stats.distTable.sampleQuantile(p);
+        });
+        return qSum / discCompletedWeight;
+      };
+
+      // Total composite scale across all discriminating completed + upcoming items
+      // If a student maintains uniform target Z_req across all upcoming exams, the upcoming sum is Z_req * upcomingWeight,
+      // and the total composite score standard deviation is:
+      const allRelWeights = [...discWeights, ...upcomingWeights];
+      const compositeScale = computePairwiseCompositeSD(allRelWeights, rho) || Math.max(1, discCompletedWeight + upcomingWeight);
+
+      // Scenario simulation (if user uses their entered upcoming exam scores)
+      let scenarioWeightedZSum = completedWeightedZSum;
+      upcomingList.forEach((u) => {
+        scenarioWeightedZSum += u.weight * u.stats.zScore;
+      });
+      const scenarioCompositeZ = compositeScale > 0 ? scenarioWeightedZSum / compositeScale : 0;
+      const scenarioTopPct = (1 - stdNormalCDF(scenarioCompositeZ)) * 100;
+      const scenarioEstRank = Math.max(1, Math.round((scenarioTopPct / 100) * N));
 
       const tiers = [
         { key: 'APlus', label: 'A+', cutPct: folder.gradeCutRatios.aPlus, color: 'indigo' },
@@ -1656,7 +2082,7 @@
         const targetZ = stdNormalInv(1 - t.cutPct / 100);
         const cutRank = Math.max(1, Math.floor((N * t.cutPct) / 100));
 
-        if (w2 <= 0) {
+        if (upcomingWeight <= 0) {
           const achieved = currentAvgZ >= targetZ;
           return {
             ...t,
@@ -1672,39 +2098,48 @@
           };
         }
 
-        const reqZ = w1 > 0 ? (targetZ * compositeScale - completedWeightedZSum) / w2 : targetZ;
+        // Required Z on the remaining upcoming exams to hit targetZ overall
+        const reqZ = hasCompleted
+          ? (targetZ * compositeScale - completedWeightedZSum) / upcomingWeight
+          : targetZ;
         const reqTopPct = (1 - stdNormalCDF(reqZ)) * 100;
         const reqRank = Math.max(1, Math.min(N, Math.round((reqTopPct / 100) * N)));
+        const targetQuantileProb = Math.min(0.999, Math.max(0.001, 1 - reqTopPct / 100));
 
         let difficultyLabel = '안정권 (현재 페이스 유지)';
         let difficultyTone = 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-        if (reqZ > 2.2) {
+        if (reqZ > 2.0) {
           difficultyLabel = '매우 도전적 (최상위권 필요)';
           difficultyTone = 'text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/30';
-        } else if (reqZ > 1.2) {
+        } else if (reqZ > 1.15) {
           difficultyLabel = '상승 필요 (고득점 공략)';
           difficultyTone = 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/30';
-        } else if (reqZ < -0.3) {
+        } else if (reqZ < -0.25) {
           difficultyLabel = '매우 여유 (실수만 방지)';
           difficultyTone = 'text-sky-600 dark:text-sky-400 bg-sky-500/10 border-sky-500/30';
         }
 
         const perUpcomingExam = upcomingList.map((u) => {
           const M_u = u.maxScore;
-          const baseMean = refNormMean * M_u;
-          const baseSd = refNormSd * M_u;
+          const useItemParams = state.upcomingAssumption === 'item';
+
+          const baseMean = useItemParams ? u.stats.mean : refNormMean * M_u;
+          const baseSd = useItemParams ? u.stats.effectiveSd : refNormSd * M_u;
           const rawNeeded = Math.min(M_u, Math.max(0, baseMean + reqZ * baseSd));
-          const quantileNeeded = refDistTable
-            ? refDistTable.sampleQuantile(Math.min(0.999, Math.max(0.001, 1 - reqTopPct / 100))) * M_u
-            : rawNeeded;
-          const blendedScore = Math.min(M_u, Math.max(0, 0.5 * rawNeeded + 0.5 * quantileNeeded));
+
+          const quantileNeeded = useItemParams
+            ? u.stats.distTable.sampleQuantile(targetQuantileProb) * M_u
+            : sampleCompositeCompletedQuantile(targetQuantileProb) * M_u;
+
+          const blendedScore = Math.min(M_u, Math.max(0, 0.55 * rawNeeded + 0.45 * quantileNeeded));
           return {
             id: u.item.id,
             title: u.item.title,
             weight: u.weight,
             maxScore: M_u,
             requiredScore: blendedScore,
-            requiredPctOfMax: (blendedScore / M_u) * 100
+            requiredPctOfMax: (blendedScore / M_u) * 100,
+            myScenarioScore: u.stats.myScore
           };
         });
 
@@ -1724,7 +2159,7 @@
 
       const itemsWithStats = folder.items.map((it) => ({
         item: it,
-        stats: it.status === 'completed' ? computeItemContinuousStats(it, N) : null
+        stats: computeItemContinuousStats(it, N)
       }));
 
       return {
@@ -1734,13 +2169,19 @@
         refNormSd,
         itemsWithStats,
         completedList,
+        discCompletedList,
+        fixedCompletedWeight,
         upcomingList,
         completedWeight,
+        discCompletedWeight,
         upcomingWeight,
         totalWeight,
         currentAvgZ,
         currentTopPct,
         currentEstRank,
+        scenarioCompositeZ,
+        scenarioTopPct,
+        scenarioEstRank,
         tierRequirements
       };
     }
@@ -1811,7 +2252,6 @@
         </defs>
       `;
 
-      // Horizontal Grid
       [0, 0.25, 0.5, 0.75, 1].forEach((t, idx) => {
         const y = pad.top + plotH * (1 - t);
         html += `
@@ -1820,7 +2260,6 @@
         `;
       });
 
-      // X-axis Ticks
       for (let i = 0; i <= 10; i++) {
         const s = (i / 10) * M;
         const x = xToPx(s);
@@ -1830,7 +2269,6 @@
         `;
       }
 
-      // Monte Carlo Histogram Bars (if manually executed)
       if (mcResult && state.showMcHistogramOnMain) {
         const binWidthScore = M / 20;
         const barW = Math.max(2, plotW / 20 - 3);
@@ -1849,10 +2287,8 @@
         });
       }
 
-      // Shaded Area
       html += `<path d="${buildShadedArea(activeDistTable)}" fill="url(#activeAreaGrad)" />`;
 
-      // Secondary Curves
       if (state.showAllCurves) {
         ['normal', 'skewNormal', 'logitNormal', 'beta'].forEach((k) => {
           if (k === effectiveDistKey) return;
@@ -1860,23 +2296,19 @@
         });
       }
 
-      // Primary Curve
       html += `<path d="${buildCurvePath(activeDistTable)}" fill="none" stroke="${activeColor}" stroke-width="3" />`;
 
-      // Mean & Median Lines
       html += `
         <line x1="${xToPx(mean)}" y1="${pad.top}" x2="${xToPx(mean)}" y2="${pad.top + plotH}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" />
-        <text x="${xToPx(mean)}" y="${pad.top - 8}" text-anchor="middle" class="fill-amber-500 text-[10px] font-bold">평균 ${mean}</text>
+        <text x="${xToPx(mean)}" y="${pad.top - 8}" text-anchor="middle" class="fill-amber-500 text-[10px] font-bold">평균 ${Number(mean.toFixed(2))}</text>
         <line x1="${xToPx(median)}" y1="${pad.top + 10}" x2="${xToPx(median)}" y2="${pad.top + plotH}" stroke="#14b8a6" stroke-width="1.5" stroke-dasharray="3 3" />
-        <text x="${xToPx(median)}" y="${pad.top + 8}" text-anchor="middle" class="fill-teal-500 text-[10px] font-bold">중앙 ${median}</text>
+        <text x="${xToPx(median)}" y="${pad.top + 8}" text-anchor="middle" class="fill-teal-500 text-[10px] font-bold">중앙 ${Number(median.toFixed(2))}</text>
       `;
 
-      // Known Scores Dots
       (item?.knownScores || []).forEach((ks) => {
         html += `<circle cx="${xToPx(ks)}" cy="${pad.top + plotH - 4}" r="4" fill="#0ea5e9" stroke="${isDark ? '#0f172a' : '#ffffff'}" stroke-width="1.5" />`;
       });
 
-      // My Score Marker
       const myX = xToPx(myScore);
       const myY = yToPx(evalNormalizedPDF(myScore / M, effectiveDistKey, fit) / M);
       const badgeX = Math.min(Math.max(myX - 44, pad.left), width - pad.right - 88);
@@ -1887,7 +2319,6 @@
         <text x="${badgeX + 44}" y="${pad.top - 11}" text-anchor="middle" class="fill-white text-[10px] font-bold">내 점수 ${myScore}</text>
       `;
 
-      // Hover Scrubbing Tooltip
       if (state.hoverScore !== null) {
         const hs = state.hoverScore;
         const hx = xToPx(hs);
@@ -1909,6 +2340,26 @@
       const analysis = computeFolderTargetAnalysis(folder);
       const targetTierMeta = analysis.tierRequirements.find((t) => t.key === folder.targetTier) || analysis.tierRequirements[0];
 
+      // Mode buttons styling
+      const btnPrev = document.getElementById('btn-mode-prev');
+      const btnItem = document.getElementById('btn-mode-item');
+      if (btnPrev && btnItem) {
+        const isPrev = state.upcomingAssumption === 'prev';
+        btnPrev.className = `px-2.5 py-1 rounded-md font-bold transition ${
+          isPrev ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+        }`;
+        btnItem.className = `px-2.5 py-1 rounded-md font-bold transition ${
+          !isPrev ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+        }`;
+      }
+
+      const badgeEl = document.getElementById('planner-assumption-badge');
+      if (badgeEl) {
+        badgeEl.textContent = state.upcomingAssumption === 'prev'
+          ? '완료된 변별 시험 가중 합성 분포 연동 중'
+          : '예정 시험 직접 입력 평균·표준편차 연동 중';
+      }
+
       // 1. Hero Summary Card
       const heroEl = document.getElementById('planner-hero-card');
       const primaryUpcoming = targetTierMeta.perUpcomingExam[0];
@@ -1916,8 +2367,17 @@
       heroEl.innerHTML = `
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div class="space-y-1.5">
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-              <span>📁 ${folder.name} 종합 성적 & 목표 역산 리포트</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                📁 ${folder.name} 종합 성적 & 목표 역산 리포트
+              </span>
+              ${
+                analysis.fixedCompletedWeight > 0
+                  ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      🛡️ 고정 만점(출석 ${analysis.fixedCompletedWeight}%) 상대평가 분산 왜곡 분리됨
+                    </span>`
+                  : ''
+              }
             </div>
             <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
               ${
@@ -1929,7 +2389,8 @@
               }
             </h3>
             <p class="text-xs text-slate-500 dark:text-slate-400">
-              완료된 시험 반영비율 <strong>${analysis.completedWeight}%</strong> (평균 Z-점수: <strong>${analysis.currentAvgZ >= 0 ? '+' : ''}${analysis.currentAvgZ.toFixed(2)}σ</strong>, 현재 상위 ${analysis.currentTopPct.toFixed(1)}%) · 앞으로 봐야 할 시험 반영비율 <strong>${analysis.upcomingWeight}%</strong> (${analysis.upcomingList.length}개 항목)
+              완료된 변별 시험 <strong>${analysis.discCompletedWeight}%</strong> 기준 현재 위치: <strong>${analysis.currentAvgZ >= 0 ? '+' : ''}${analysis.currentAvgZ.toFixed(2)}σ</strong> (상위 ${analysis.currentTopPct.toFixed(1)}%, 약 ${analysis.currentEstRank}등/${analysis.N}명)
+              · 예정 시험 입력 시나리오 종합 예상: <strong class="text-indigo-600 dark:text-indigo-400">상위 ${analysis.scenarioTopPct.toFixed(1)}% (약 ${analysis.scenarioEstRank}등)</strong>
             </p>
           </div>
 
@@ -1938,12 +2399,12 @@
               ? `
               <div class="shrink-0 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/30 flex items-center gap-4">
                 <div>
-                  <div class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-300">[${primaryUpcoming.title}] 목표 권장 점수</div>
+                  <div class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-300">[${primaryUpcoming.title}] ${targetTierMeta.label} 목표 권장 점수</div>
                   <div class="text-2xl font-extrabold text-indigo-700 dark:text-indigo-200 mt-0.5">
                     ${primaryUpcoming.requiredScore.toFixed(1)}점 <span class="text-xs font-normal opacity-80">/ ${primaryUpcoming.maxScore}점</span>
                   </div>
                   <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    만점 대비 ${primaryUpcoming.requiredPctOfMax.toFixed(1)}% · ${targetTierMeta.difficultyLabel}
+                    만점 대비 ${primaryUpcoming.requiredPctOfMax.toFixed(1)}% · 내 예상 입력점수: <strong>${primaryUpcoming.myScenarioScore}점</strong>
                   </div>
                 </div>
               </div>
@@ -1953,7 +2414,7 @@
         </div>
       `;
 
-      // 2. Syllabus Items Breakdown Table
+      // 2. Syllabus Items Breakdown Table (Now allows editing upcoming scenario mean/median/myScore too!)
       const tbody = document.getElementById('planner-items-tbody');
       tbody.innerHTML = analysis.itemsWithStats.map(({ item, stats }) => {
         const isCompleted = item.status === 'completed';
@@ -1963,7 +2424,14 @@
         return `
           <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
             <td class="py-2.5 px-3 font-bold text-slate-900 dark:text-white">
-              <input data-plan-item="${item.id}" data-field="title" type="text" value="${item.title}" class="plan-input px-2 py-1 rounded bg-transparent border border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:bg-white dark:focus:bg-slate-950 focus:border-indigo-500 focus:outline-none w-36 font-bold" />
+              <div class="flex items-center gap-1.5">
+                <input data-plan-item="${item.id}" data-field="title" type="text" value="${item.title}" class="plan-input px-2 py-1 rounded bg-transparent border border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:bg-white dark:focus:bg-slate-950 focus:border-indigo-500 focus:outline-none w-28 font-bold" />
+                ${
+                  stats.isFixed
+                    ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold shrink-0" title="상대평가 Z-분산에서 분리됨">변별제외</span>`
+                    : ''
+                }
+              </div>
             </td>
             <td class="py-2.5 px-3">
               <select data-plan-item="${item.id}" data-field="status" class="plan-input px-2 py-1 rounded-md text-xs font-semibold border ${
@@ -1972,7 +2440,7 @@
                   : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30'
               }">
                 <option value="completed" ${isCompleted ? 'selected' : ''}>✅ 완료됨</option>
-                <option value="upcoming" ${!isCompleted ? 'selected' : ''}>⏳ 예정 (앞으로 볼 시험)</option>
+                <option value="upcoming" ${!isCompleted ? 'selected' : ''}>⏳ 예정 시험</option>
               </select>
             </td>
             <td class="py-2.5 px-3">
@@ -1983,49 +2451,43 @@
             </td>
             <td class="py-2.5 px-3">
               <div class="flex items-center gap-1">
-                <input data-plan-item="${item.id}" data-field="maxScore" type="text" inputmode="decimal" value="${item.maxScore}" class="plan-input w-16 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center font-bold" />
+                <input data-plan-item="${item.id}" data-field="maxScore" type="text" inputmode="decimal" value="${item.maxScore}" class="plan-input w-14 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center font-bold" />
                 <span class="text-slate-400">점</span>
               </div>
             </td>
             <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">
-              ${
-                isCompleted
-                  ? `
-                    <div class="flex items-center gap-1">
-                      <input data-plan-item="${item.id}" data-field="mean" type="text" inputmode="decimal" value="${item.mean}" title="평균" class="plan-input w-14 px-1.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-amber-600 dark:text-amber-300 font-semibold" />
-                      <span>/</span>
-                      <input data-plan-item="${item.id}" data-field="median" type="text" inputmode="decimal" value="${item.median}" title="중앙값" class="plan-input w-14 px-1.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-teal-600 dark:text-teal-300 font-semibold" />
-                      <span>/</span>
-                      <span class="text-[11px] text-slate-400">SD ${stats.activeSd.toFixed(1)}</span>
-                    </div>
-                  `
-                  : `<span class="text-[11px] text-slate-400 dark:text-slate-500">데이터 입력 불필요 (예정 시험)</span>`
-              }
+              <div class="flex items-center gap-1">
+                <input data-plan-item="${item.id}" data-field="mean" type="text" inputmode="decimal" value="${item.mean}" title="평균 (예정 시험은 예상 평균)" class="plan-input w-14 px-1.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-amber-600 dark:text-amber-300 font-semibold" />
+                <span>/</span>
+                <input data-plan-item="${item.id}" data-field="median" type="text" inputmode="decimal" value="${item.median}" title="중앙값" class="plan-input w-14 px-1.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-teal-600 dark:text-teal-300 font-semibold" />
+                <span>/</span>
+                <span class="text-[11px] text-slate-400">SD ${stats.activeSd.toFixed(1)}</span>
+              </div>
+            </td>
+            <td class="py-2.5 px-3">
+              <div class="flex items-center gap-1">
+                <input data-plan-item="${item.id}" data-field="myScore" type="text" inputmode="decimal" value="${item.myScore}" class="plan-input w-16 px-2 py-1 rounded ${
+                  isCompleted
+                    ? 'bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/40 text-rose-600 dark:text-rose-300'
+                    : 'bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300'
+                } text-center font-extrabold" />
+                <span class="text-[10px] text-slate-400">${isCompleted ? '점' : '예상'}</span>
+              </div>
             </td>
             <td class="py-2.5 px-3">
               ${
                 isCompleted
-                  ? `
-                    <div class="flex items-center gap-1">
-                      <input data-plan-item="${item.id}" data-field="myScore" type="text" inputmode="decimal" value="${item.myScore}" class="plan-input w-16 px-2 py-1 rounded bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/40 text-center font-extrabold text-rose-600 dark:text-rose-300" />
-                      <span class="text-[10px] text-slate-400">점</span>
-                    </div>
-                  `
-                  : `<span class="text-[11px] text-slate-400 dark:text-slate-500">—</span>`
-              }
-            </td>
-            <td class="py-2.5 px-3">
-              ${
-                isCompleted
-                  ? `<span class="font-bold text-indigo-600 dark:text-indigo-400">${stats.zScore >= 0 ? '+' : ''}${stats.zScore.toFixed(2)}σ</span> <span class="text-[11px] text-slate-500">(상위 ${stats.topPercent.toFixed(1)}%, ~${stats.estRank}등)</span>`
+                  ? stats.isFixed
+                    ? `<span class="text-xs font-semibold text-slate-500 dark:text-slate-400">고정 만점 확보 (${stats.zScore.toFixed(2)}σ · 변별 중립)</span>`
+                    : `<span class="font-bold text-indigo-600 dark:text-indigo-400">${stats.zScore >= 0 ? '+' : ''}${stats.zScore.toFixed(2)}σ</span> <span class="text-[11px] text-slate-500">(상위 ${stats.topPercent.toFixed(1)}%, ~${stats.estRank}등)</span>`
                   : upTarget
-                    ? `<span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">🎯 ${targetTierMeta.label} 목표: 약 ${upTarget.requiredScore.toFixed(1)}점 / ${upTarget.maxScore}점</span> <span class="text-[11px] text-slate-500">(상위 ${Math.min(99.9, Math.max(0.1, targetTierMeta.reqTopPct)).toFixed(1)}%)</span>`
+                    ? `<span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">🎯 ${targetTierMeta.label} 목표: ${upTarget.requiredScore.toFixed(1)}점/${upTarget.maxScore}점</span> <span class="text-[11px] text-slate-500">(상위 ${Math.min(99.9, Math.max(0.1, targetTierMeta.reqTopPct)).toFixed(1)}%)</span>`
                     : `<span class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">🎯 목표 역산 대상</span>`
               }
             </td>
             <td class="py-2.5 px-3 text-right space-x-1">
               <button data-open-item="${item.id}" type="button" class="btn-open-item px-2.5 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 font-semibold transition">
-                ${isCompleted ? '성적 분석' : '목표 보기'}
+                ${isCompleted ? '성적 분석' : '목표·시뮬'}
               </button>
               ${
                 folder.items.length > 1
@@ -2068,7 +2530,7 @@
                     <div class="mt-3 pt-2.5 border-t border-slate-200/70 dark:border-slate-800 space-y-1.5">
                       ${t.perUpcomingExam.map((u) => `
                         <div class="flex items-center justify-between text-xs">
-                          <span class="text-slate-600 dark:text-slate-300 truncate max-w-[110px]">📌 ${u.title} (${u.weight}%)</span>
+                          <span class="text-slate-600 dark:text-slate-300 truncate max-w-[115px]">📌 ${u.title} (${u.weight}%)</span>
                           <span class="font-extrabold text-slate-900 dark:text-white">${u.requiredScore.toFixed(1)}점 <span class="text-[10px] font-normal text-slate-400">/ ${u.maxScore}</span></span>
                         </div>
                       `).join('')}
@@ -2090,17 +2552,19 @@
       if (analysis.upcomingList.length === 0) {
         upcomingDetailBox.innerHTML = `
           <div class="p-4 rounded-xl bg-slate-100/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
-            💡 현재 폴더에 <strong>[예정 (앞으로 볼 시험)]</strong> 상태인 평가 항목이 없습니다. 위 표에서 기말고사나 남은 과제를 추가하거나 상태를 [예정]으로 변경하면 학점별 요구 점수가 계산됩니다.
+            💡 현재 폴더에 <strong>[예정 시험]</strong> 상태인 평가 항목이 없습니다.
           </div>
         `;
       } else {
         upcomingDetailBox.innerHTML = `
           <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
             <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
-              💡 예정된 시험(${analysis.upcomingList.map((u) => u.item.title).join(', ')}) 역산 안내
+              💡 수식 교정 안내: 왜곡 없는 목표 역산 & 시나리오 시뮬레이션
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              예정된 시험은 별도의 통계 데이터를 입력할 필요 없이 <strong>만점 기준</strong>과 <strong>반영 비율(%)</strong>만 입력하면 완료된 시험의 난이도 분포와 내 표준화 점수를 바탕으로 목표 점수가 자동 역산됩니다.
+              1) <strong>소배점 만점 왜곡 해결</strong>: 6점 만점 과제나 5점 만점 출석이 10점 만점으로 오인되던 하한선 버그를 제거했습니다.<br/>
+              2) <strong>출석 변수 분리</strong>: 전원 만점인 출석 항목이 목표 역산 분포(<code class="font-mono">refDistTable</code>)를 덮어쓰거나 가짜 $+1.0\sigma$를 만들지 않도록 분리했습니다.<br/>
+              3) <strong>모드 전환</strong>: 상단 우측 버튼으로 <strong>[완료 시험 난이도 연동]</strong>과 <strong>[예정 시험 입력값 시뮬레이션]</strong>을 언제든 전환할 수 있습니다.
             </p>
           </div>
         `;
@@ -2210,25 +2674,26 @@
         `;
       }).join('');
 
-      // 2. Folder Header Inputs (Safe against focus overwrite)
+      // 2. Folder Header Inputs
       setInputValueSafe('input-folder-name', folder.name);
       setInputValueSafe('input-folder-students', folder.studentCount);
       document.getElementById('select-folder-target').value = folder.targetTier || 'A0';
 
       const totalW = folder.items.reduce((acc, i) => acc + (Number(i.weight) || 0), 0);
       const weightBadge = document.getElementById('folder-weight-badge');
-      weightBadge.textContent = `배점 합계: ${Number(totalW.toFixed(1))}%`;
+      weightBadge.textContent = `배점 합계: ${Number(totalW.toFixed(2))}%`;
       weightBadge.className = `text-xs font-semibold px-2.5 py-1 rounded-lg border ${
         Math.abs(totalW - 100) < 0.1
-          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
           : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
       }`;
 
-      // 3. Render Sub-items inside Folder + "종합 & 앞으로 볼 시험 목표 분석" Button
+      // 3. Render Sub-items inside Folder + Planner Tab
       const itemsTabs = document.getElementById('folder-items-tabs');
       const itemCardsHtml = folder.items.map((it) => {
         const isSelected = !isPlannerView && it.id === item.id;
         const isDone = it.status === 'completed';
+        const fixedFlag = isNonDiscriminatingItem(it);
         return `
           <div data-item-id="${it.id}" class="item-card-tab cursor-pointer p-3 rounded-xl border transition flex flex-col justify-between ${
             isSelected
@@ -2239,15 +2704,17 @@
               <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${it.title}</span>
               <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold shrink-0 ${
                 isDone
-                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                  ? fixedFlag
+                    ? 'bg-slate-500/15 text-slate-600 dark:text-slate-300'
+                    : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
                   : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
-              }">${isDone ? '완료' : '예정'} · ${it.weight}%</span>
+              }">${isDone ? (fixedFlag ? '고정만점' : '완료') : '예정'} · ${it.weight}%</span>
             </div>
             <div class="mt-2 flex items-baseline justify-between text-[11px] text-slate-500 dark:text-slate-400">
               ${
                 isDone
                   ? `<span>내 점수: <strong class="text-slate-800 dark:text-slate-200">${it.myScore}</strong>/${it.maxScore}</span><span>평균 ${it.mean}</span>`
-                  : `<span>만점 기준: <strong class="text-slate-800 dark:text-slate-200">${it.maxScore}점</strong></span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">목표 역산</span>`
+                  : `<span>만점: <strong class="text-slate-800 dark:text-slate-200">${it.maxScore}점</strong></span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">예상 ${it.myScore}점</span>`
               }
             </div>
           </div>
@@ -2271,7 +2738,6 @@
       `;
       itemsTabs.innerHTML = itemCardsHtml + plannerTabHtml;
 
-      // Toggle between Planner View and Individual Exam Analyzer View
       document.getElementById('view-folder-planner').classList.toggle('hidden', !isPlannerView);
       document.getElementById('view-exam-analyzer').classList.toggle('hidden', isPlannerView);
 
@@ -2281,7 +2747,7 @@
       }
 
       // 4. Individual Exam Analyzer View Rendering
-      const { M, mean, median, activeSd, autoEstimatedSd, myScore, studentCount, fit, effectiveDistKey, allDistTables, myContinuousStats } = computed;
+      const { M, mean, median, activeSd, autoEstimatedSd, myScore, studentCount, isFixed, fit, effectiveDistKey, allDistTables, myContinuousStats } = computed;
       const mcResult = item.mcResult;
       const isUpcomingItem = item.status === 'upcoming';
 
@@ -2289,16 +2755,21 @@
       setInputValueSafe('input-exam-title', item.title);
       setInputValueSafe('input-exam-weight', item.weight);
       setInputValueSafe('input-max-score', item.maxScore);
+      document.getElementById('check-fixed-item').checked = isFixed;
 
-      // Show/Hide inputs depending on whether the exam is upcoming or completed
+      // Keep inputs accessible even for upcoming items so user can simulate scenarios!
       document.getElementById('card1-title').textContent = isUpcomingItem
-        ? '1. 예정 시험 배점 및 만점 설정'
+        ? '1. 예정 시험 배점 & 시나리오 통계량'
         : '1. 평가 항목 및 기초 통계량';
+      document.getElementById('label-stats-section').textContent = isUpcomingItem
+        ? '예상 시나리오 통계량 (직접 수정 가능)'
+        : '필수 통계량 (소수점 자유 입력)';
+      document.getElementById('label-my-score-title').textContent = isUpcomingItem
+        ? '내 예상 점수 (Scenario Score)'
+        : '내 점수 (My Score)';
+
       document.getElementById('exam-upcoming-left-notice').classList.toggle('hidden', !isUpcomingItem);
-      document.getElementById('exam-stats-inputs-group').classList.toggle('hidden', isUpcomingItem);
-      document.getElementById('card-my-score-mc').classList.toggle('hidden', isUpcomingItem);
       document.getElementById('exam-upcoming-target-panel').classList.toggle('hidden', !isUpcomingItem);
-      document.getElementById('exam-completed-analysis-group').classList.toggle('hidden', isUpcomingItem);
 
       if (isUpcomingItem) {
         const analysis = computeFolderTargetAnalysis(folder);
@@ -2308,7 +2779,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3.5">
               <div>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300">
-                  ⏳ 예정된 시험 · 목표 점수 자동 역산
+                  ⏳ 예정된 시험 · 목표 점수 역산표 (아래에서 예상 분포 시뮬레이션도 가능)
                 </span>
                 <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mt-1.5">
                   [${item.title}] 만점 ${item.maxScore}점 · 반영 비율 ${item.weight}% 기준 목표 성적표
@@ -2316,8 +2787,8 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   ${
                     analysis.hasCompleted
-                      ? `현재까지 완료된 시험(${analysis.completedWeight}%)의 내 위치(상위 ${analysis.currentTopPct.toFixed(1)}%, Z=${analysis.currentAvgZ >= 0 ? '+' : ''}${analysis.currentAvgZ.toFixed(2)}σ)를 바탕으로 역산한 결과입니다.`
-                      : `아직 완료된 시험이 없어 과목 상대평가 비율(${folder.studentCount}명 기준)을 그대로 반영해 산출한 목표치입니다.`
+                      ? `완료된 변별 시험(${analysis.discCompletedWeight}%)의 내 위치(상위 ${analysis.currentTopPct.toFixed(1)}%, Z=${analysis.currentAvgZ >= 0 ? '+' : ''}${analysis.currentAvgZ.toFixed(2)}σ)를 바탕으로 역산한 결과입니다.`
+                      : `아직 완료된 변별 시험이 없어 과목 상대평가 비율(${folder.studentCount}명 기준)을 그대로 반영해 산출한 목표치입니다.`
                   }
                 </p>
               </div>
@@ -2371,7 +2842,6 @@
             </div>
           </section>
         `;
-        return;
       }
 
       setInputValueSafe('input-mean', item.mean);
@@ -2380,14 +2850,15 @@
       setInputValueSafe('input-my-score', item.myScore);
 
       // SD Slider & Labels
-      document.getElementById('sd-gap-desc').textContent = `평균·중앙값 차이(${Math.abs(mean - median).toFixed(1)}점) 기반 AI 추정: ${autoEstimatedSd.toFixed(1)}점`;
+      document.getElementById('sd-gap-desc').textContent = `평균·중앙값 차이(${Math.abs(mean - median).toFixed(2)}점) 기반 AI 추정: ${autoEstimatedSd.toFixed(2)}점`;
       const sdSlider = document.getElementById('slider-sd');
-      sdSlider.min = Math.max(0.5, Number((M * 0.03).toFixed(1)));
-      sdSlider.max = Number((M * 0.4).toFixed(1));
+      sdSlider.min = Math.max(0.1, Number((M * 0.02).toFixed(2)));
+      sdSlider.max = Number((M * 0.45).toFixed(2));
+      sdSlider.step = M <= 10 ? 0.05 : 0.1;
       sdSlider.value = activeSd;
-      document.getElementById('sd-min-label').textContent = `촘촘 (${(M * 0.03).toFixed(0)})`;
-      document.getElementById('sd-max-label').textContent = `양극화 (${(M * 0.4).toFixed(0)})`;
-      document.getElementById('btn-jump-ai-sd').textContent = `▲ AI 추정 (${autoEstimatedSd.toFixed(1)})`;
+      document.getElementById('sd-min-label').textContent = `촘촘 (${(M * 0.02).toFixed(1)})`;
+      document.getElementById('sd-max-label').textContent = `양극화 (${(M * 0.45).toFixed(1)})`;
+      document.getElementById('btn-jump-ai-sd').textContent = `▲ AI 추정 (${autoEstimatedSd.toFixed(2)})`;
 
       const sdBadge = document.getElementById('sd-mode-badge');
       const btnResetSd = document.getElementById('btn-reset-sd-auto');
@@ -2423,6 +2894,7 @@
       document.getElementById('my-score-pct-label').textContent = `만점 대비 ${((myScore / M) * 100).toFixed(1)}%`;
       const mySlider = document.getElementById('slider-my-score');
       mySlider.max = M;
+      mySlider.step = M <= 10 ? 0.05 : 0.1;
       mySlider.value = myScore;
       document.getElementById('known-count-label').textContent = (item.knownScores || []).length;
 
@@ -2468,12 +2940,16 @@
 
       // Top 4 KPIs
       const contRank = Math.max(1, Math.round((myContinuousStats.topPercent / 100) * studentCount));
-      document.getElementById('kpi-top-pct').textContent = `상위 ${myContinuousStats.topPercent.toFixed(1)}%`;
-      document.getElementById('kpi-cont-rank').textContent = `연속분포 추정 약 ${contRank}등 / ${studentCount}명`;
+      document.getElementById('kpi-top-pct').textContent = isFixed
+        ? '고정 만점 (중립)'
+        : `상위 ${myContinuousStats.topPercent.toFixed(1)}%`;
+      document.getElementById('kpi-cont-rank').textContent = isFixed
+        ? `상대평가 변별 제외 항목`
+        : `연속분포 추정 약 ${contRank}등 / ${studentCount}명`;
       document.getElementById('kpi-z-score').textContent = `${myContinuousStats.zScore >= 0 ? '+' : ''}${myContinuousStats.zScore.toFixed(2)}σ`;
       document.getElementById('kpi-t-score').textContent = `(T=${myContinuousStats.tScore.toFixed(1)})`;
-      const diffMean = myScore - mean;
-      document.getElementById('kpi-mean-diff').textContent = `평균 대비 ${diffMean >= 0 ? '+' : ''}${diffMean.toFixed(1)}점`;
+      const diffMean = myScore - Number(item.mean);
+      document.getElementById('kpi-mean-diff').textContent = `평균 대비 ${diffMean >= 0 ? '+' : ''}${diffMean.toFixed(2)}점`;
 
       if (mcResult) {
         document.getElementById('kpi-expected-rank').textContent = `${mcResult.expectedRank.toFixed(1)}등`;
@@ -2484,13 +2960,14 @@
           gp.APlus >= 50 ? 'A+ 유력' : gp.APlus + gp.A0 >= 50 ? 'A0 권역' : gp.BPlus + gp.A0 + gp.APlus >= 50 ? 'B+ 권역' : 'B0 이하';
         document.getElementById('kpi-expected-gpa').textContent = `MC 기대 평점: ${mcResult.expectedGPA.toFixed(2)} / 4.5`;
       } else {
-        document.getElementById('kpi-expected-rank').textContent = `약 ${contRank}등`;
+        document.getElementById('kpi-expected-rank').textContent = isFixed ? `공동 1등` : `약 ${contRank}등`;
         document.getElementById('kpi-total-n').textContent = `/ ${studentCount}명 (이론치)`;
         document.getElementById('kpi-rank-ci').textContent = `몬테카를로 실행 시 신뢰구간 표시`;
         const p = myContinuousStats.topPercent;
         const r = folder.gradeCutRatios;
-        document.getElementById('kpi-grade-tier').textContent =
-          p <= r.aPlus ? 'A+ 권역' : p <= r.aZero ? 'A0 권역' : p <= r.bPlus ? 'B+ 권역' : p <= r.bZero ? 'B0 권역' : 'C+ 이하';
+        document.getElementById('kpi-grade-tier').textContent = isFixed
+          ? '만점 확보'
+          : p <= r.aPlus ? 'A+ 권역' : p <= r.aZero ? 'A0 권역' : p <= r.bPlus ? 'B+ 권역' : p <= r.bZero ? 'B0 권역' : 'C+ 이하';
         document.getElementById('kpi-expected-gpa').textContent = `연속분포 백분위 기준`;
       }
 
@@ -2499,10 +2976,14 @@
       const diagBanner = document.getElementById('diagnostic-banner');
       const diagLabel = document.getElementById('diag-label');
       const diagDesc = document.getElementById('diag-desc');
-      if (fit.beta.alpha < 1 && fit.beta.beta < 1) {
+      if (isFixed) {
+        diagBanner.className = 'px-4 py-3 rounded-xl border text-xs leading-relaxed bg-slate-500/10 border-slate-500/25 text-slate-700 dark:text-slate-200';
+        diagLabel.textContent = '[고정 만점 · 상대평가 변별 제외 항목]';
+        diagDesc.textContent = '전원 만점에 가까운 항목(출석 등)으로 인식되어, 종합 목표 점수 역산 시 가짜 Z-점수 부풀림을 일으키지 않도록 분리되었습니다.';
+      } else if (fit.beta.alpha < 1 && fit.beta.beta < 1) {
         diagBanner.className = 'px-4 py-3 rounded-xl border text-xs leading-relaxed bg-purple-500/10 border-purple-500/25 text-purple-800 dark:text-purple-200';
         diagLabel.textContent = '[양극화 분포]';
-        diagDesc.textContent = '표준편차가 커서 상위권과 하위권으로 양분된 형태입니다.';
+        diagDesc.textContent = '표준편차가 커서 상위권과 하위권(0점·만점 부근)으로 양분된 형태입니다.';
       } else if (relDiff < -0.025) {
         diagBanner.className = 'px-4 py-3 rounded-xl border text-xs leading-relaxed bg-emerald-500/10 border-emerald-500/25 text-emerald-800 dark:text-emerald-200';
         diagLabel.textContent = '[좌측 왜도 · 상위권 밀집형]';
@@ -2522,7 +3003,7 @@
 
       // Chart & Legend
       document.getElementById('chart-sd-summary').innerHTML =
-        `적용 표준편차: <strong class="text-indigo-600 dark:text-indigo-400">${activeSd.toFixed(1)}점</strong> (${
+        `만점 기준: <strong>${M}점</strong> · 적용 표준편차: <strong class="text-indigo-600 dark:text-indigo-400">${activeSd.toFixed(2)}점</strong> (${
           item.sdMode === 'auto' ? 'AI 자동 추정' : '사용자 직접 설정'
         })`;
       renderDistributionSVG();
@@ -2553,8 +3034,8 @@
         let paramText = '';
         if (k === 'beta') paramText = `α=${fit.beta.alpha.toFixed(2)}, β=${fit.beta.beta.toFixed(2)}`;
         else if (k === 'logitNormal') paramText = `μ_L=${fit.logitNormal.muL.toFixed(2)}, σ_L=${fit.logitNormal.sigmaL.toFixed(2)}`;
-        else if (k === 'skewNormal') paramText = `ξ=${(fit.skewNormal.xi * M).toFixed(1)}, ω=${(fit.skewNormal.omega * M).toFixed(1)}`;
-        else if (k === 'normal') paramText = `μ=${(fit.normal.loc * M).toFixed(1)}, σ=${(fit.normal.scale * M).toFixed(1)}`;
+        else if (k === 'skewNormal') paramText = `ξ=${(fit.skewNormal.xi * M).toFixed(2)}, ω=${(fit.skewNormal.omega * M).toFixed(2)}`;
+        else if (k === 'normal') paramText = `μ=${(fit.normal.loc * M).toFixed(2)}, σ=${(fit.normal.scale * M).toFixed(2)}`;
         else paramText = '베타+로짓+왜도 가중평균';
 
         return `
@@ -2564,7 +3045,7 @@
               <span class="text-slate-900 dark:text-white">${DIST_META[k].name}</span>
             </td>
             <td class="py-2 px-3 font-mono text-[11px] text-slate-500 dark:text-slate-400">${paramText}</td>
-            <td class="py-2 px-3 text-slate-600 dark:text-slate-300">${tbl.calcMean.toFixed(1)} / ${tbl.calcMedian.toFixed(1)} / ${tbl.calcSd.toFixed(1)}</td>
+            <td class="py-2 px-3 text-slate-600 dark:text-slate-300">${tbl.calcMean.toFixed(2)} / ${tbl.calcMedian.toFixed(2)} / ${tbl.calcSd.toFixed(2)}</td>
             <td class="py-2 px-3 font-bold text-indigo-600 dark:text-indigo-400">상위 ${topP.toFixed(1)}% (~${Math.max(1, Math.round((topP / 100) * studentCount))}등)</td>
             <td class="py-2 px-3">
               <button data-dist-key="${k}" type="button" class="btn-select-dist px-2 py-1 rounded text-[11px] ${
@@ -2595,10 +3076,10 @@
           </div>
           <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
             <div class="text-xs text-slate-500">미확인 학생 (${mcResult.N - mcResult.K}명) 요구 평균</div>
-            <div class="text-base font-bold text-amber-600 dark:text-amber-400 mt-1">${mcResult.targetRemainingMean.toFixed(1)}점</div>
+            <div class="text-base font-bold text-amber-600 dark:text-amber-400 mt-1">${mcResult.targetRemainingMean.toFixed(2)}점</div>
           </div>
           <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
-            <div class="text-xs text-slate-500">중앙값(${median}점) 상·하위 잔여 인원</div>
+            <div class="text-xs text-slate-500">중앙값(${Number(median.toFixed(2))}점) 상·하위 잔여 인원</div>
             <div class="text-base font-bold text-indigo-600 dark:text-indigo-400 mt-1">상위 ${Math.max(0, Math.round(mcResult.N / 2) - mcResult.knownAboveMed)}명 / 하위 ${Math.max(0, Math.round(mcResult.N / 2) - mcResult.knownBelowMed)}명</div>
           </div>
         `;
@@ -2633,7 +3114,6 @@
         </div>
       `).join('');
 
-      // Compute cutoff scores (from MC if available, else continuous quantile)
       const getContCut = (pct) => computed.activeDistTable.sampleQuantile(Math.max(0.001, 1 - pct / 100)) * M;
       const cutoffs = mcResult ? mcResult.expectedCutoffs : {
         APlus: getContCut(folder.gradeCutRatios.aPlus),
@@ -2665,19 +3145,40 @@
             <span class="text-base font-extrabold">${c.grade}</span>
             <span class="text-xs font-bold">${mcResult ? `${c.prob.toFixed(1)}%` : (c.prob > 0 ? '해당 권역' : '-')}</span>
           </div>
-          <div class="text-[11px] mt-2 font-semibold">${c.cut > 0 ? `예상 컷: ${c.cut.toFixed(1)}점` : '하위 구간'}</div>
+          <div class="text-[11px] mt-2 font-semibold">${c.cut > 0 ? `예상 컷: ${c.cut.toFixed(2)}점` : '하위 구간'}</div>
         </div>
       `).join('');
     }
 
     // =========================================================================
-    // 6. EVENT BINDINGS (DECIMAL-SAFE & MANUAL MONTE CARLO)
+    // 6. EVENT BINDINGS
     // =========================================================================
     function bindEvents() {
       // Theme Toggle
       document.getElementById('btn-theme-toggle').addEventListener('click', () => {
         applyTheme(state.theme === 'dark' ? 'light' : 'dark');
         recalculateContinuousOnly(true);
+      });
+
+      // Instant Restore of User's 4-Course Backup
+      document.getElementById('btn-load-my-backup').addEventListener('click', () => {
+        state.folders = JSON.parse(JSON.stringify(USER_BACKUP_FOLDERS));
+        state.activeFolderId = 'folder-ds';
+        state.activeItemId = 'FOLDER_PLANNER';
+        recalculateContinuousOnly(true);
+        showToast('선형대수2·정수론·편미분방정식·해석개론2 데이터를 교정된 엔진으로 불러왔습니다!');
+      });
+
+      // Upcoming Assumption Mode Toggle ('prev' vs 'item')
+      document.getElementById('btn-mode-prev').addEventListener('click', () => {
+        state.upcomingAssumption = 'prev';
+        recalculateContinuousOnly(true);
+        showToast('완료된 변별 시험의 난이도 분포를 기준으로 목표 점수를 역산합니다.');
+      });
+      document.getElementById('btn-mode-item').addEventListener('click', () => {
+        state.upcomingAssumption = 'item';
+        recalculateContinuousOnly(true);
+        showToast('예정된 시험에 직접 입력하신 예상 평균·표준편차를 기준으로 목표 점수를 역산합니다.');
       });
 
       // Add New Subject Folder
@@ -2722,16 +3223,17 @@
             },
             {
               id: `item-${Date.now()}-3`,
-              title: '과제 및 출석',
+              title: '출석',
               status: 'completed',
+              isFixed: true,
               weight: 15,
-              maxScore: 100,
-              mean: 90.0,
-              median: 92.0,
+              maxScore: 10,
+              mean: 10.0,
+              median: 10.0,
               sdMode: 'custom',
-              sdInput: 6.0,
+              sdInput: 0.5,
               selectedDist: 'auto',
-              myScore: 95.0,
+              myScore: 10.0,
               knownScores: [],
               mcResult: null
             }
@@ -2744,11 +3246,10 @@
         showToast(`"${newFolder.name}" 폴더가 생성되었습니다.`);
       });
 
-      // Add New Exam/Assessment Item inside Active Folder
       const addExamItemHandler = () => {
         const folder = getActiveFolder();
         const usedWeight = folder.items.reduce((acc, i) => acc + (Number(i.weight) || 0), 0);
-        const remWeight = Math.max(5, Number((100 - usedWeight).toFixed(1)));
+        const remWeight = Math.max(5, Number((100 - usedWeight).toFixed(2)));
         const newItem = {
           id: `item-${Date.now()}`,
           title: `평가 항목 ${folder.items.length + 1}`,
@@ -2774,7 +3275,7 @@
       document.getElementById('btn-add-exam-item').addEventListener('click', addExamItemHandler);
       document.getElementById('btn-planner-add-item').addEventListener('click', addExamItemHandler);
 
-      // Folder-level Metadata Inputs
+      // Folder Metadata Inputs
       document.getElementById('input-folder-name').addEventListener('input', (e) => {
         getActiveFolder().name = e.target.value;
         recalculateContinuousOnly(true);
@@ -2792,12 +3293,11 @@
         recalculateContinuousOnly(true);
       });
 
-      // Individual Exam Inputs (Decimal Safe: parse softly, never overwrite activeElement!)
+      // Individual Exam Inputs
       const bindDecimalInput = (id, callback) => {
         const el = document.getElementById(id);
         el.addEventListener('input', (e) => {
           const raw = e.target.value.trim();
-          // Allow trailing dot or minus or empty while typing without interrupting user
           if (raw === '' || raw.endsWith('.')) return;
           const num = Number(raw);
           if (!isNaN(num)) {
@@ -2816,6 +3316,14 @@
         }
       });
 
+      document.getElementById('check-fixed-item').addEventListener('change', (e) => {
+        const item = getActiveItem();
+        if (item) {
+          item.isFixed = e.target.checked;
+          recalculateContinuousOnly(true);
+        }
+      });
+
       document.getElementById('input-exam-title').addEventListener('input', (e) => {
         const item = getActiveItem();
         if (item) {
@@ -2830,7 +3338,7 @@
       });
       bindDecimalInput('input-max-score', (num) => {
         const item = getActiveItem();
-        if (item && num >= 5) item.maxScore = num;
+        if (item && num >= 1) item.maxScore = num;
       });
       bindDecimalInput('input-mean', (num) => {
         const item = getActiveItem();
@@ -2928,7 +3436,6 @@
         }
       });
 
-      // MANUAL MONTE CARLO BUTTONS (ONLY PLACE WHERE MONTE CARLO RUNS!)
       const handleManualMcClick = () => {
         executeMonteCarloNow();
         showToast(`${state.mcIterations.toLocaleString()}회 조건부 몬테카를로 시뮬레이션이 완료되었습니다!`);
@@ -2936,7 +3443,6 @@
       document.getElementById('btn-run-mc').addEventListener('click', handleManualMcClick);
       document.getElementById('btn-reroll-samples').addEventListener('click', handleManualMcClick);
 
-      // Jump to Folder Planner
       document.getElementById('btn-jump-folder-planner').addEventListener('click', () => {
         state.activeItemId = 'FOLDER_PLANNER';
         recalculateContinuousOnly(true);
@@ -2947,11 +3453,10 @@
         if (item) {
           item.status = 'completed';
           recalculateContinuousOnly(true);
-          showToast(`"${item.title}" 항목을 [완료된 시험]으로 전환했습니다. 이제 성적 데이터를 입력할 수 있습니다.`);
+          showToast(`"${item.title}" 항목을 [완료된 시험]으로 전환했습니다.`);
         }
       });
 
-      // Delegated Clicks
       document.body.addEventListener('click', (e) => {
         if (e.target.closest('#btn-upcoming-go-planner')) {
           state.activeItemId = 'FOLDER_PLANNER';
@@ -2959,7 +3464,6 @@
           return;
         }
 
-        // Delete Subject Folder
         const delFolderBtn = e.target.closest('.btn-del-folder');
         if (delFolderBtn) {
           e.stopPropagation();
@@ -2968,26 +3472,22 @@
           state.folders = state.folders.filter((f) => f.id !== delId);
           if (state.activeFolderId === delId) {
             state.activeFolderId = state.folders[0].id;
-            state.activeItemId = state.folders[0].items[0].id;
+            state.activeItemId = 'FOLDER_PLANNER';
           }
           recalculateContinuousOnly(true);
           showToast('과목 폴더를 삭제했습니다.');
           return;
         }
 
-        // Switch Subject Folder
         const folderTab = e.target.closest('.folder-tab');
         if (folderTab) {
           const fid = folderTab.getAttribute('data-folder-id');
           state.activeFolderId = fid;
-          const f = getActiveFolder();
-          state.activeItemId = f.items[0]?.id || 'FOLDER_PLANNER';
-          state.mcNeedsUpdate = !getActiveItem()?.mcResult;
+          state.activeItemId = 'FOLDER_PLANNER';
           recalculateContinuousOnly(true);
           return;
         }
 
-        // Switch Item Tab or Planner Tab
         const itemTab = e.target.closest('.item-card-tab');
         if (itemTab) {
           const iid = itemTab.getAttribute('data-item-id');
@@ -2997,7 +3497,6 @@
           return;
         }
 
-        // Open Item from Planner Table
         const openItemBtn = e.target.closest('.btn-open-item');
         if (openItemBtn) {
           state.activeItemId = openItemBtn.getAttribute('data-open-item');
@@ -3005,7 +3504,6 @@
           return;
         }
 
-        // Delete Item from Planner Table
         const delItemBtn = e.target.closest('.btn-del-item');
         if (delItemBtn) {
           const folder = getActiveFolder();
@@ -3017,7 +3515,6 @@
           return;
         }
 
-        // Select Distribution Model
         const distBtn = e.target.closest('.btn-select-dist');
         if (distBtn) {
           const item = getActiveItem();
@@ -3029,7 +3526,6 @@
           return;
         }
 
-        // Remove Known Score
         const rmKnownBtn = e.target.closest('.btn-remove-known');
         if (rmKnownBtn) {
           const item = getActiveItem();
@@ -3042,7 +3538,6 @@
           return;
         }
 
-        // Select Monte Carlo Iterations (Does NOT auto-run; updates count for next click)
         const mcIterBtn = e.target.closest('.btn-mc-iter');
         if (mcIterBtn) {
           state.mcIterations = parseInt(mcIterBtn.getAttribute('data-mc-iter'), 10);
@@ -3052,7 +3547,6 @@
         }
       });
 
-      // Delegated Inputs inside Planner Table & Grade Cutoffs (Decimal Safe)
       document.body.addEventListener('input', (e) => {
         if (e.target.classList.contains('plan-input')) {
           const iid = e.target.getAttribute('data-plan-item');
@@ -3070,23 +3564,16 @@
             const num = Number(val);
             if (!isNaN(num)) {
               targetItem[field] = num;
-              // Update without overwriting focused table input
               saveStateToBrowserCache({
                 theme: state.theme,
                 folders: state.folders,
                 activeFolderId: state.activeFolderId,
-                activeItemId: state.activeItemId
+                activeItemId: state.activeItemId,
+                upcomingAssumption: state.upcomingAssumption
               });
-              // Re-render hero & tier cards without destroying focused input in tbody
-              const analysis = computeFolderTargetAnalysis(folder);
               const totalW = folder.items.reduce((acc, i) => acc + (Number(i.weight) || 0), 0);
-              document.getElementById('folder-weight-badge').textContent = `배점 합계: ${Number(totalW.toFixed(1))}%`;
-              // Update Hero & Tier Cards only
-              const targetTierMeta = analysis.tierRequirements.find((t) => t.key === folder.targetTier) || analysis.tierRequirements[0];
-              const primaryUpcoming = targetTierMeta.perUpcomingExam[0];
-              if (primaryUpcoming) {
-                renderFolderPlannerViewAndPreserveFocus(folder);
-              }
+              document.getElementById('folder-weight-badge').textContent = `배점 합계: ${Number(totalW.toFixed(2))}%`;
+              renderFolderPlannerCardsOnly(folder);
             }
           }
           return;
@@ -3104,7 +3591,8 @@
               theme: state.theme,
               folders: state.folders,
               activeFolderId: state.activeFolderId,
-              activeItemId: state.activeItemId
+              activeItemId: state.activeItemId,
+              upcomingAssumption: state.upcomingAssumption
             });
           }
         }
@@ -3116,7 +3604,6 @@
         }
       });
 
-      // Sub-tabs Navigation
       document.querySelectorAll('.tab-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
           const tabId = btn.getAttribute('data-tab');
@@ -3135,7 +3622,6 @@
         });
       });
 
-      // SVG Hover Scrubbing
       const svgEl = document.getElementById('svg-dist-chart');
       svgEl.addEventListener('mousemove', (e) => {
         const rect = svgEl.getBoundingClientRect();
@@ -3150,13 +3636,13 @@
         renderDistributionSVG();
       });
 
-      // Share URL Link
       document.getElementById('btn-share-url').addEventListener('click', () => {
         const payload = {
           theme: state.theme,
           folders: state.folders,
           activeFolderId: state.activeFolderId,
-          activeItemId: state.activeItemId
+          activeItemId: state.activeItemId,
+          upcomingAssumption: state.upcomingAssumption
         };
         const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
         window.location.hash = `pga=${encodeURIComponent(b64)}`;
@@ -3168,22 +3654,22 @@
         }
       });
 
-      // JSON Export & Import
       document.getElementById('btn-export-json').addEventListener('click', () => {
         const payload = {
           app: '개인 맞춤 성적 분석기',
-          version: '2.0',
+          version: '2.1',
           exportedAt: new Date().toISOString(),
           theme: state.theme,
           folders: state.folders,
           activeFolderId: state.activeFolderId,
-          activeItemId: state.activeItemId
+          activeItemId: state.activeItemId,
+          upcomingAssumption: state.upcomingAssumption
         };
         const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `개인맞춤성적분석기_폴더백업.json`;
+        a.download = `개인맞춤성적분석기_폴더백업_v2.1.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -3209,7 +3695,6 @@
         e.target.value = '';
       });
 
-      // JSON Modal
       const jsonModal = document.getElementById('json-modal');
       const jsonBuffer = document.getElementById('textarea-json-buffer');
       document.getElementById('btn-open-json-modal').addEventListener('click', () => {
@@ -3217,7 +3702,8 @@
           theme: state.theme,
           folders: state.folders,
           activeFolderId: state.activeFolderId,
-          activeItemId: state.activeItemId
+          activeItemId: state.activeItemId,
+          upcomingAssumption: state.upcomingAssumption
         }, null, 2);
         jsonModal.classList.remove('hidden');
       });
@@ -3238,50 +3724,14 @@
       });
     }
 
-    function renderFolderPlannerViewAndPreserveFocus(folder) {
+    function renderFolderPlannerCardsOnly(folder) {
       const analysis = computeFolderTargetAnalysis(folder);
       const targetTierMeta = analysis.tierRequirements.find((t) => t.key === folder.targetTier) || analysis.tierRequirements[0];
       const primaryUpcoming = targetTierMeta.perUpcomingExam[0];
       const heroEl = document.getElementById('planner-hero-card');
-      if (heroEl) {
-        heroEl.innerHTML = `
-          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div class="space-y-1.5">
-              <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                <span>📁 ${folder.name} 종합 성적 & 목표 역산 리포트</span>
-              </div>
-              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
-                ${
-                  analysis.upcomingWeight <= 0
-                    ? `모든 평가 배점(${analysis.completedWeight}%)이 완료되었습니다. 현재 추정 위치는 상위 ${analysis.currentTopPct.toFixed(1)}% (약 ${analysis.currentEstRank}등)입니다.`
-                    : primaryUpcoming
-                      ? `목표 학점 [${targetTierMeta.label}] 달성을 위해 앞으로 남은 시험(${analysis.upcomingWeight}%)에서 상위 ${Math.min(99.9, Math.max(0.1, targetTierMeta.reqTopPct)).toFixed(1)}% (약 ${targetTierMeta.reqRank}등 이내)가 필요합니다.`
-                      : ''
-                }
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
-                완료된 시험 반영비율 <strong>${analysis.completedWeight}%</strong> (평균 Z-점수: <strong>${analysis.currentAvgZ >= 0 ? '+' : ''}${analysis.currentAvgZ.toFixed(2)}σ</strong>, 현재 상위 ${analysis.currentTopPct.toFixed(1)}%) · 앞으로 봐야 할 시험 반영비율 <strong>${analysis.upcomingWeight}%</strong> (${analysis.upcomingList.length}개 항목)
-              </p>
-            </div>
-            ${
-              primaryUpcoming
-                ? `
-                <div class="shrink-0 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/30 flex items-center gap-4">
-                  <div>
-                    <div class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-300">[${primaryUpcoming.title}] 목표 권장 점수</div>
-                    <div class="text-2xl font-extrabold text-indigo-700 dark:text-indigo-200 mt-0.5">
-                      ${primaryUpcoming.requiredScore.toFixed(1)}점 <span class="text-xs font-normal opacity-80">/ ${primaryUpcoming.maxScore}점</span>
-                    </div>
-                    <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      만점 대비 ${primaryUpcoming.requiredPctOfMax.toFixed(1)}% · ${targetTierMeta.difficultyLabel}
-                    </div>
-                  </div>
-                </div>
-                `
-                : ''
-            }
-          </div>
-        `;
+      if (heroEl && primaryUpcoming) {
+        heroEl.querySelector('h3').textContent =
+          `목표 학점 [${targetTierMeta.label}] 달성을 위해 앞으로 남은 시험(${analysis.upcomingWeight}%)에서 상위 ${Math.min(99.9, Math.max(0.1, targetTierMeta.reqTopPct)).toFixed(1)}% (약 ${targetTierMeta.reqRank}등 이내)가 필요합니다.`;
       }
     }
 
@@ -3289,7 +3739,8 @@
       if (parsed && Array.isArray(parsed.folders) && parsed.folders.length > 0) {
         state.folders = parsed.folders;
         state.activeFolderId = parsed.activeFolderId || state.folders[0].id;
-        state.activeItemId = parsed.activeItemId || state.folders[0].items[0].id;
+        state.activeItemId = parsed.activeItemId || 'FOLDER_PLANNER';
+        if (parsed.upcomingAssumption) state.upcomingAssumption = parsed.upcomingAssumption;
         if (parsed.theme) applyTheme(parsed.theme);
         recalculateContinuousOnly(true);
         showToast('과목 폴더 데이터를 성공적으로 복원했습니다!');
@@ -3305,7 +3756,8 @@
       if (cached && Array.isArray(cached.folders) && cached.folders.length > 0) {
         state.folders = cached.folders;
         state.activeFolderId = cached.activeFolderId || state.folders[0].id;
-        state.activeItemId = cached.activeItemId || state.folders[0].items[0].id;
+        state.activeItemId = cached.activeItemId || 'FOLDER_PLANNER';
+        if (cached.upcomingAssumption) state.upcomingAssumption = cached.upcomingAssumption;
         if (cached.theme) applyTheme(cached.theme);
       } else {
         applyTheme('dark');
