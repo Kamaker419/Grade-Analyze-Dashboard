@@ -279,6 +279,30 @@
             <input id="check-fixed-item" type="checkbox" class="rounded accent-indigo-600 w-4 h-4 shrink-0" />
           </label>
 
+          <!-- Optional: Actual Min / Max Score Bounds (Used only when needed) -->
+          <div class="rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 p-3 space-y-2.5">
+            <label class="flex items-center justify-between gap-2 text-xs cursor-pointer">
+              <div>
+                <span class="font-bold text-slate-700 dark:text-slate-200">📏 실제 최솟값 · 최댓값 설정 (필요 시 선택)</span>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">시험 만점 외에 실제 최저점·최고점을 알 때만 켜서 분포 범위를 제한합니다.</p>
+              </div>
+              <input id="check-use-actual-bounds" type="checkbox" class="rounded accent-indigo-600 w-4 h-4 shrink-0" />
+            </label>
+            <div id="actual-bounds-inputs-box" class="hidden pt-2.5 border-t border-slate-200/70 dark:border-slate-800 space-y-2">
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">실제 최솟값 (Min)</label>
+                  <input id="input-actual-min" type="text" inputmode="decimal" placeholder="미입력 시 0점" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-sky-600 dark:text-sky-400 focus:border-indigo-500 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">실제 최댓값 (Max)</label>
+                  <input id="input-actual-max" type="text" inputmode="decimal" placeholder="미입력 시 만점" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-emerald-600 dark:text-emerald-400 focus:border-indigo-500 focus:outline-none" />
+                </div>
+              </div>
+              <div id="actual-bounds-summary" class="text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between"></div>
+            </div>
+          </div>
+
           <!-- Notice shown when exam is Upcoming -->
           <div id="exam-upcoming-left-notice" class="hidden p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2">
             <div class="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center justify-between">
@@ -399,6 +423,46 @@
               </button>
             </form>
             <div id="known-scores-chips" class="flex flex-wrap gap-1.5 pt-0.5 max-h-24 overflow-y-auto"></div>
+          </div>
+
+          <!-- Optional: Custom Score Intervals (Bins) with Student Counts (Used only when needed) -->
+          <div class="rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 p-3 space-y-2.5">
+            <label class="flex items-center justify-between gap-2 text-xs cursor-pointer">
+              <div>
+                <span class="font-bold text-slate-700 dark:text-slate-200">📊 점수 구간별 인원 설정 (필요 시 선택)</span>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">원하는 점수 구간과 사람 수를 자유롭게 설정해 분포와 시뮬레이션에 반영합니다.</p>
+              </div>
+              <input id="check-use-score-bins" type="checkbox" class="rounded accent-indigo-600 w-4 h-4 shrink-0" />
+            </label>
+
+            <div id="score-bins-editor-box" class="hidden pt-2.5 border-t border-slate-200/70 dark:border-slate-800 space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-1.5">
+                <span id="score-bins-summary-badge" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                  구간 인원 합계: 0명 / 45명
+                </span>
+                <div class="flex flex-wrap items-center gap-1">
+                  <button id="btn-add-score-bin" type="button" class="px-2 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition">
+                    + 구간 추가
+                  </button>
+                  <button id="btn-preset-5bins" type="button" class="px-2 py-1 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-medium transition" title="현재 점수 범위를 5개 균등 구간으로 자동 생성합니다">
+                    5구간 분할
+                  </button>
+                  <button id="btn-apply-bins-stats" type="button" class="px-2 py-1 rounded-md bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition" title="설정한 구간별 인원수로 평균·중앙값·표준편차를 역산해 적용합니다">
+                    통계 자동계산
+                  </button>
+                  <button id="btn-clear-score-bins" type="button" class="px-1.5 py-1 rounded-md text-slate-400 hover:text-rose-500 text-[11px] transition" title="구간 모두 비우기">
+                    비우기
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between px-1">
+                <span>점수 구간 (최소 ~ 최대 점수)</span>
+                <span>인원수 (명)</span>
+              </div>
+
+              <div id="score-bins-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-0.5"></div>
+            </div>
           </div>
 
           <!-- Manual Monte Carlo Execution Controls -->
@@ -734,11 +798,135 @@
       return false;
     }
 
-    function computeAutoEstimatedSD({ mean, median, maxScore = 100, knownScores = [], myScore = null }) {
+    // Helper: Get optional Actual Min / Max Bounds when enabled
+    function getEffectiveBounds(item, M) {
+      const maxS = Math.max(1, Number(M) || 100);
+      if (!item || !item.useActualBounds) {
+        return {
+          useBounds: false,
+          effMin: 0,
+          effMax: maxS,
+          span: maxS,
+          hasExplicitMin: false,
+          hasExplicitMax: false
+        };
+      }
+      const hasExplicitMin =
+        item.actualMin !== undefined &&
+        item.actualMin !== null &&
+        String(item.actualMin).trim() !== '' &&
+        !isNaN(Number(item.actualMin));
+      const hasExplicitMax =
+        item.actualMax !== undefined &&
+        item.actualMax !== null &&
+        String(item.actualMax).trim() !== '' &&
+        !isNaN(Number(item.actualMax));
+
+      let effMin = hasExplicitMin ? Math.max(0, Math.min(maxS, Number(item.actualMin))) : 0;
+      let effMax = hasExplicitMax ? Math.max(0, Math.min(maxS, Number(item.actualMax))) : maxS;
+      const minSpan = Math.max(0.1, maxS * 0.01);
+      if (effMin >= effMax - minSpan) {
+        if (hasExplicitMin && !hasExplicitMax) {
+          effMin = Math.max(0, maxS - minSpan);
+        } else if (!hasExplicitMin && hasExplicitMax) {
+          effMax = Math.min(maxS, minSpan);
+        } else {
+          const mid = 0.5 * (effMin + effMax);
+          effMin = Math.max(0, mid - minSpan * 0.5);
+          effMax = Math.min(maxS, mid + minSpan * 0.5);
+        }
+      }
+      return {
+        useBounds: true,
+        effMin,
+        effMax,
+        span: Math.max(minSpan, effMax - effMin),
+        hasExplicitMin,
+        hasExplicitMax
+      };
+    }
+
+    // Helper: Get validated custom score bins when enabled
+    function getValidScoreBins(item, M, effMin = 0, effMax = M) {
+      if (!item || !item.useScoreBins || !Array.isArray(item.scoreBins) || item.scoreBins.length === 0) {
+        return [];
+      }
+      const valid = [];
+      for (const b of item.scoreBins) {
+        const rawMin = Number(b.min);
+        const rawMax = Number(b.max);
+        const rawCount = Number(b.count);
+        if (isNaN(rawMin) || isNaN(rawMax) || isNaN(rawCount) || rawCount < 0) continue;
+        const lo = Math.max(effMin, Math.min(effMax, Math.min(rawMin, rawMax)));
+        const hi = Math.max(effMin, Math.min(effMax, Math.max(rawMin, rawMax)));
+        if (hi - lo <= 1e-4) continue;
+        valid.push({
+          id: b.id || `bin-${valid.length}`,
+          min: lo,
+          max: hi,
+          count: rawCount
+        });
+      }
+      return valid;
+    }
+
+    // Helper: Estimate mean, median, and SD from custom score bins
+    function computeStatsFromScoreBins(bins, M, effMin = 0, effMax = M) {
+      const positiveBins = (bins || []).filter((b) => b.count > 0 && b.max > b.min);
+      const totalCount = positiveBins.reduce((acc, b) => acc + b.count, 0);
+      if (positiveBins.length === 0 || totalCount <= 0) return null;
+
+      let weightedSum = 0;
+      positiveBins.forEach((b) => {
+        const mid = 0.5 * (b.min + b.max);
+        weightedSum += mid * b.count;
+      });
+      const mean = weightedSum / totalCount;
+
+      let varSum = 0;
+      positiveBins.forEach((b) => {
+        const mid = 0.5 * (b.min + b.max);
+        const width = b.max - b.min;
+        // Grouped variance + Sheppard-style within-bin uniform variance (width^2 / 12)
+        varSum += b.count * (Math.pow(mid - mean, 2) + (width * width) / 12);
+      });
+      const sd = Math.sqrt(Math.max(1e-4, varSum / totalCount));
+
+      // Sort bins by midpoint ascending to interpolate median
+      const sorted = [...positiveBins].sort((a, b) => (a.min + a.max) - (b.min + b.max));
+      const half = totalCount * 0.5;
+      let cum = 0;
+      let median = mean;
+      for (const b of sorted) {
+        if (cum + b.count >= half) {
+          const frac = (half - cum) / Math.max(b.count, 1e-6);
+          median = b.min + frac * (b.max - b.min);
+          break;
+        }
+        cum += b.count;
+      }
+
+      return {
+        totalCount,
+        mean: Number(Math.min(effMax, Math.max(effMin, mean)).toFixed(2)),
+        median: Number(Math.min(effMax, Math.max(effMin, median)).toFixed(2)),
+        sd: Number(Math.min((effMax - effMin) * 0.45, Math.max((effMax - effMin) * 0.02, sd)).toFixed(2))
+      };
+    }
+
+    function computeAutoEstimatedSD({
+      mean, median, maxScore = 100, knownScores = [], myScore = null,
+      effMin = 0, effMax = null, useBounds = false, hasExplicitMin = false, hasExplicitMax = false,
+      customBins = []
+    }) {
       // FIXED: Allow maxScore down to 1 (supports 5-pt attendance & 6-pt homework)
       const M = Math.max(1, Number(maxScore) || 100);
-      const mu = Math.min(Math.max(Number(mean) / M, 0.01), 0.99);
-      const med = Math.min(Math.max(Number(median) / M, 0.01), 0.99);
+      const bMin = Math.max(0, Math.min(M, Number(effMin) || 0));
+      const bMax = effMax !== null && effMax !== undefined ? Math.max(bMin + 0.1, Math.min(M, Number(effMax))) : M;
+      const span = Math.max(0.1, bMax - bMin);
+
+      const mu = Math.min(Math.max((Number(mean) - bMin) / span, 0.01), 0.99);
+      const med = Math.min(Math.max((Number(median) - bMin) / span, 0.01), 0.99);
       const skewGap = Math.abs(mu - med);
       const maxPossibleVar = Math.max(0.0025, mu * (1 - mu));
       let estSigmaNorm = Math.min(
@@ -746,29 +934,56 @@
         Math.sqrt(maxPossibleVar * 0.85)
       );
 
+      // If user explicitly provided actual min/max bounds, blend with range-based SD estimate
+      if (useBounds && (hasExplicitMin || hasExplicitMax)) {
+        const rangeSigmaNorm = Math.min(Math.sqrt(maxPossibleVar * 0.85), 0.24);
+        const boundWeight = hasExplicitMin && hasExplicitMax ? 0.35 : 0.2;
+        estSigmaNorm = estSigmaNorm * (1 - boundWeight) + rangeSigmaNorm * boundWeight;
+      }
+
       const validKnown = [
         ...(myScore !== null && !isNaN(Number(myScore)) ? [Number(myScore)] : []),
+        ...(useBounds && hasExplicitMin ? [bMin] : []),
+        ...(useBounds && hasExplicitMax ? [bMax] : []),
         ...knownScores.map(Number)
-      ].filter((v) => !isNaN(v) && v >= 0 && v <= M);
+      ].filter((v) => !isNaN(v) && v >= bMin && v <= bMax);
 
       if (validKnown.length >= 2) {
-        const sqDiffSum = validKnown.reduce((acc, s) => acc + Math.pow(s / M - mu, 2), 0);
+        const sqDiffSum = validKnown.reduce((acc, s) => acc + Math.pow((s - bMin) / span - mu, 2), 0);
         const sampleSpread = Math.sqrt(sqDiffSum / validKnown.length);
         const weight = Math.min(0.55, validKnown.length * 0.08);
         estSigmaNorm = estSigmaNorm * (1 - weight) + sampleSpread * weight;
       }
-      return Number(Math.min(Math.max(estSigmaNorm * M, M * 0.02), M * 0.45).toFixed(2));
+
+      // If custom score bins are active, incorporate grouped bin SD
+      if (customBins && customBins.length > 0) {
+        const binStats = computeStatsFromScoreBins(customBins, M, bMin, bMax);
+        if (binStats && binStats.totalCount >= 2) {
+          const binSigmaNorm = binStats.sd / span;
+          const binWeight = Math.min(0.8, binStats.totalCount / 25);
+          estSigmaNorm = estSigmaNorm * (1 - binWeight) + binSigmaNorm * binWeight;
+        }
+      }
+
+      return Number(Math.min(Math.max(estSigmaNorm * span, span * 0.02), span * 0.45).toFixed(2));
     }
 
-    function fitDistributions({ mean, median, sd, isCustomSd = false, maxScore = 100 }) {
+    function fitDistributions({
+      mean, median, sd, isCustomSd = false, maxScore = 100,
+      effMin = 0, effMax = null, useBounds = false, hasExplicitMin = false, hasExplicitMax = false
+    }) {
       // FIXED: M lower bound set to 1 instead of 10!
       const M = Math.max(1, Number(maxScore) || 100);
-      const mu = Math.min(Math.max(Number(mean) / M, 0.01), 0.99);
-      const med = Math.min(Math.max(Number(median) / M, 0.01), 0.99);
+      const boundMin = Math.max(0, Math.min(M, Number(effMin) || 0));
+      const boundMax = effMax !== null && effMax !== undefined ? Math.max(boundMin + 0.1, Math.min(M, Number(effMax))) : M;
+      const span = Math.max(0.1, boundMax - boundMin);
+
+      const mu = Math.min(Math.max((Number(mean) - boundMin) / span, 0.01), 0.99);
+      const med = Math.min(Math.max((Number(median) - boundMin) / span, 0.01), 0.99);
       const numericSd = Number(sd);
       const sigma = !isNaN(numericSd) && numericSd > 0
-        ? Math.min(Math.max(numericSd / M, 0.015), 0.46)
-        : Math.min(Math.max(computeAutoEstimatedSD({ mean, median, maxScore: M }) / M, 0.025), 0.44);
+        ? Math.min(Math.max(numericSd / span, 0.015), 0.46)
+        : Math.min(Math.max(computeAutoEstimatedSD({ mean, median, maxScore: M, effMin: boundMin, effMax: boundMax, useBounds }) / span, 0.025), 0.44);
 
       const maxVar = Math.max(1e-4, mu * (1 - mu) * 0.98);
       const v = Math.min(sigma * sigma, maxVar);
@@ -836,14 +1051,14 @@
       let recommendationReason = '';
       if (bestAlpha < 1 && bestBeta < 1) {
         recommended = 'beta';
-        recommendationReason = '표준편차가 커서 상·하위권 양극화(U자형) 및 0점·만점 경계 밀집을 포착하는 베타 분포가 적합합니다.';
+        recommendationReason = '표준편차가 커서 상·하위권 양극화(U자형) 및 경계 밀집을 포착하는 베타 분포가 적합합니다.';
       } else if (skewRatio > 0.12) {
         if (med > 0.78 || med < 0.22) {
           recommended = 'logitNormal';
           recommendationReason = '점수가 경계 부근에 밀집해 있고 평균·중앙값 격차가 커서 로짓-정규분포가 우수합니다.';
         } else {
           recommended = 'beta';
-          recommendationReason = `평균(${(mu * M).toFixed(2)})과 중앙값(${(med * M).toFixed(2)})의 비대칭성을 [0, ${M}] 안에서 자연스럽게 모사합니다.`;
+          recommendationReason = `평균(${(boundMin + mu * span).toFixed(2)})과 중앙값(${(boundMin + med * span).toFixed(2)})의 비대칭성을 [${Number(boundMin.toFixed(1))}, ${Number(boundMax.toFixed(1))}] 안에서 자연스럽게 모사합니다.`;
         }
       } else {
         recommended = 'skewNormal';
@@ -851,12 +1066,26 @@
       }
 
       return {
-        M, mu, med, sigma, hasUserSd: isCustomSd,
+        M,
+        effMin: boundMin,
+        effMax: boundMax,
+        span,
+        useBounds,
+        hasExplicitMin,
+        hasExplicitMax,
+        mu,
+        med,
+        sigma,
+        classMean: boundMin + mu * span,
+        classMedian: boundMin + med * span,
+        classSd: sigma * span,
+        hasUserSd: isCustomSd,
         beta: { alpha: bestAlpha, beta: bestBeta },
         logitNormal: { muL: bestMuL, sigmaL: bestSigmaL },
         skewNormal: { xi, omega, alpha: skewAlpha },
         normal: { loc: mu, scale: sigma },
-        recommended, recommendationReason
+        recommended,
+        recommendationReason
       };
     }
 
@@ -886,19 +1115,107 @@
       );
     }
 
-    function buildDistributionTable(distKey, fit) {
+    // Evaluate PDF at normalized score x = s / M in [0, 1], respecting [effMin, effMax]
+    function evalScoreNormPDF(xNormOfM, distKey, fit) {
+      const s = xNormOfM * fit.M;
+      const effMin = fit.effMin ?? 0;
+      const effMax = fit.effMax ?? fit.M;
+      const span = fit.span ?? fit.M;
+      if (s < effMin - 1e-6 || s > effMax + 1e-6) return 0;
+      const u = Math.min(Math.max((s - effMin) / span, 0), 1);
+      return evalNormalizedPDF(u, distKey, fit) * (fit.M / span);
+    }
+
+    function buildDistributionTable(distKey, fit, customBins = [], studentCount = 40) {
       const N_GRID = 200;
       const xs = new Array(N_GRID + 1);
       const pdfs = new Array(N_GRID + 1);
       const cdfs = new Array(N_GRID + 1);
       cdfs[0] = 0;
 
+      const effMin = fit.effMin ?? 0;
+      const effMax = fit.effMax ?? fit.M;
+
       for (let i = 0; i <= N_GRID; i++) {
         const x = i / N_GRID;
         xs[i] = x;
-        const p = evalNormalizedPDF(x, distKey, fit);
+        const p = evalScoreNormPDF(x, distKey, fit);
         pdfs[i] = Number.isFinite(p) ? Math.max(0, p) : 0;
       }
+
+      // If custom score bins are active, reweight density across intervals to match bin student counts
+      const activeBins = (customBins || []).filter((b) => b.max > b.min && b.count >= 0);
+      const totalBinStudents = activeBins.reduce((acc, b) => acc + b.count, 0);
+      if (activeBins.length > 0 && totalBinStudents > 0) {
+        const effN = Math.max(Number(studentCount) || 40, totalBinStudents);
+        const cellMass = new Array(N_GRID).fill(0);
+        const cellBinIdx = new Array(N_GRID).fill(-1);
+
+        for (let i = 0; i < N_GRID; i++) {
+          const midScore = 0.5 * (xs[i] + xs[i + 1]) * fit.M;
+          if (midScore < effMin || midScore > effMax) {
+            cellMass[i] = 0;
+            continue;
+          }
+          cellMass[i] = Math.max(1e-6, 0.5 * (pdfs[i] + pdfs[i + 1]) * (1 / N_GRID));
+          for (let bIdx = 0; bIdx < activeBins.length; bIdx++) {
+            const b = activeBins[bIdx];
+            if (midScore >= b.min && midScore <= b.max) {
+              cellBinIdx[i] = bIdx;
+              break;
+            }
+          }
+        }
+
+        const binBaseMass = new Array(activeBins.length).fill(0);
+        const binCellCount = new Array(activeBins.length).fill(0);
+        let uncoveredBaseMass = 0;
+        let uncoveredCellCount = 0;
+
+        for (let i = 0; i < N_GRID; i++) {
+          const midScore = 0.5 * (xs[i] + xs[i + 1]) * fit.M;
+          if (midScore < effMin || midScore > effMax) continue;
+          const bIdx = cellBinIdx[i];
+          if (bIdx >= 0) {
+            binBaseMass[bIdx] += cellMass[i];
+            binCellCount[bIdx]++;
+          } else {
+            uncoveredBaseMass += cellMass[i];
+            uncoveredCellCount++;
+          }
+        }
+
+        const totalAssignedProb = Math.min(1.0, totalBinStudents / effN);
+        const remainingProb = Math.max(0, 1.0 - totalAssignedProb);
+        const newCellDensity = new Array(N_GRID).fill(0);
+
+        for (let i = 0; i < N_GRID; i++) {
+          const midScore = 0.5 * (xs[i] + xs[i + 1]) * fit.M;
+          if (midScore < effMin || midScore > effMax) continue;
+          const bIdx = cellBinIdx[i];
+          if (bIdx >= 0) {
+            const targetProb = (activeBins[bIdx].count / effN) * (totalBinStudents > effN ? effN / totalBinStudents : 1);
+            if (binBaseMass[bIdx] > 1e-6) {
+              newCellDensity[i] = (cellMass[i] / binBaseMass[bIdx]) * targetProb * N_GRID;
+            } else if (binCellCount[bIdx] > 0) {
+              newCellDensity[i] = (targetProb / binCellCount[bIdx]) * N_GRID;
+            }
+          } else if (uncoveredCellCount > 0 && remainingProb > 0) {
+            if (uncoveredBaseMass > 1e-6) {
+              newCellDensity[i] = (cellMass[i] / uncoveredBaseMass) * remainingProb * N_GRID;
+            } else {
+              newCellDensity[i] = (remainingProb / uncoveredCellCount) * N_GRID;
+            }
+          }
+        }
+
+        pdfs[0] = newCellDensity[0];
+        for (let i = 1; i < N_GRID; i++) {
+          pdfs[i] = 0.5 * (newCellDensity[i - 1] + newCellDensity[i]);
+        }
+        pdfs[N_GRID] = newCellDensity[N_GRID - 1];
+      }
+
       for (let i = 1; i <= N_GRID; i++) {
         cdfs[i] = cdfs[i - 1] + 0.5 * (pdfs[i - 1] + pdfs[i]) * (1 / N_GRID);
       }
@@ -931,10 +1248,13 @@
           else high = mid;
         }
         const span = Math.max(cdfs[high] - cdfs[low], 1e-7);
-        return xs[low] + ((target - cdfs[low]) / span) * (xs[high] - xs[low]);
+        const rawNorm = xs[low] + ((target - cdfs[low]) / span) * (xs[high] - xs[low]);
+        return Math.min(effMax / fit.M, Math.max(effMin / fit.M, rawNorm));
       };
 
       const getCDF = (score) => {
+        if (score <= effMin) return 0;
+        if (score >= effMax) return 1;
         const norm = Math.min(Math.max(score / fit.M, 0), 1);
         const idx = Math.min(Math.floor(norm * N_GRID), N_GRID - 1);
         const frac = norm * N_GRID - idx;
@@ -952,24 +1272,77 @@
 
     function runMonteCarloSimulation({
       fit, distTable, myScore, knownScores, studentCount,
-      iterations = 10000, enforceMoments = true, seedNonce = 1, gradeCutRatios
+      iterations = 10000, enforceMoments = true, seedNonce = 1, gradeCutRatios,
+      customBins = []
     }) {
       const M = fit.M;
-      const N = Math.max(Math.min(Number(studentCount) || 40, 500), knownScores.length + 2);
+      const effMin = fit.effMin ?? 0;
+      const effMax = fit.effMax ?? M;
+      const activeBins = (customBins || []).filter((b) => b.max > b.min && b.count > 0);
+      const totalBinCount = activeBins.reduce((acc, b) => acc + Math.round(b.count), 0);
+
+      const N = Math.max(
+        Math.min(Number(studentCount) || 40, 500),
+        knownScores.length + 2,
+        totalBinCount
+      );
       const myS = Math.min(Math.max(Number(myScore) || 0, 0), M);
-      const classMean = fit.mu * M;
-      const classMedian = fit.med * M;
+      const classMean = fit.classMean ?? fit.mu * M;
+      const classMedian = fit.classMedian ?? fit.med * M;
 
       const validKnown = knownScores.map(Number).filter((v) => !isNaN(v) && v >= 0 && v <= M);
       const fixedScores = [myS, ...validKnown];
+
+      // If user explicitly specified actualMin / actualMax, ensure boundary scores are represented in the class
+      if (fit.useBounds) {
+        if (fit.hasExplicitMin && fixedScores.length < N && !fixedScores.some((s) => Math.abs(s - effMin) <= 1e-4)) {
+          fixedScores.push(effMin);
+        }
+        if (fit.hasExplicitMax && fixedScores.length < N && !fixedScores.some((s) => Math.abs(s - effMax) <= 1e-4)) {
+          fixedScores.push(effMax);
+        }
+      }
+
       const K = fixedScores.length;
       const remainingCount = Math.max(1, N - K);
       const fixedSum = fixedScores.reduce((a, b) => a + b, 0);
       const targetTotalSum = classMean * N;
       const targetRemainingMean = Math.min(
-        Math.max((targetTotalSum - fixedSum) / remainingCount, M * 0.01),
-        M * 0.99
+        Math.max((targetTotalSum - fixedSum) / remainingCount, effMin + (effMax - effMin) * 0.01),
+        effMax - (effMax - effMin) * 0.01
       );
+
+      // Build per-slot sampling constraints when custom score bins are active
+      const hasCustomBins = activeBins.length > 0;
+      const slotMin = new Float64Array(remainingCount).fill(effMin);
+      const slotMax = new Float64Array(remainingCount).fill(effMax);
+      const slotCdfLow = new Float64Array(remainingCount).fill(0);
+      const slotCdfHigh = new Float64Array(remainingCount).fill(1);
+      const slotIsBinned = new Uint8Array(remainingCount).fill(0);
+
+      if (hasCustomBins) {
+        const usedFixed = new Uint8Array(K).fill(0);
+        let slotPtr = 0;
+        for (const b of activeBins) {
+          let fixedInThisBin = 0;
+          for (let f = 0; f < K; f++) {
+            if (!usedFixed[f] && fixedScores[f] >= b.min - 1e-5 && fixedScores[f] <= b.max + 1e-5) {
+              usedFixed[f] = 1;
+              fixedInThisBin++;
+            }
+          }
+          const needed = Math.max(0, Math.round(b.count) - fixedInThisBin);
+          const cLow = distTable.getCDF(b.min);
+          const cHigh = distTable.getCDF(b.max);
+          for (let c = 0; c < needed && slotPtr < remainingCount; c++, slotPtr++) {
+            slotMin[slotPtr] = b.min;
+            slotMax[slotPtr] = b.max;
+            slotCdfLow[slotPtr] = cLow;
+            slotCdfHigh[slotPtr] = cHigh;
+            slotIsBinned[slotPtr] = 1;
+          }
+        }
+      }
 
       const medianCdfProb = Math.min(Math.max(distTable.getCDF(classMedian), 0.05), 0.95);
       const knownBelowMed = fixedScores.filter((s) => s < classMedian).length;
@@ -1020,37 +1393,53 @@
 
         let drawnSum = 0;
         for (let i = K; i < N; i++) {
-          let u;
-          if (enforceMoments && remainingCount >= 4) {
-            const remIdx = i - K;
-            if (remIdx < remTargetBelow) u = rand() * medianCdfProb;
-            else u = medianCdfProb + rand() * (1 - medianCdfProb);
+          const remIdx = i - K;
+          let s;
+          if (slotIsBinned[remIdx]) {
+            const cLo = slotCdfLow[remIdx];
+            const cHi = slotCdfHigh[remIdx];
+            if (cHi - cLo > 1e-4) {
+              const u = cLo + rand() * (cHi - cLo);
+              s = distTable.sampleQuantile(u) * M;
+            } else {
+              s = slotMin[remIdx] + rand() * (slotMax[remIdx] - slotMin[remIdx]);
+            }
+            s = Math.min(slotMax[remIdx], Math.max(slotMin[remIdx], s));
           } else {
-            u = rand();
+            let u;
+            if (enforceMoments && !hasCustomBins && remainingCount >= 4) {
+              if (remIdx < remTargetBelow) u = rand() * medianCdfProb;
+              else u = medianCdfProb + rand() * (1 - medianCdfProb);
+            } else {
+              u = rand();
+            }
+            s = Math.min(effMax, Math.max(effMin, distTable.sampleQuantile(u) * M));
           }
-          const s = distTable.sampleQuantile(u) * M;
           simScores[i] = s;
           drawnSum += s;
         }
 
-        // FIXED: Piecewise scaling that shifts the mean WITHOUT pushing scores across classMedian!
+        // FIXED: Piecewise scaling that shifts the mean WITHOUT pushing scores across classMedian or bin/bound limits!
         if (enforceMoments && remainingCount > 2) {
           const drawnMean = drawnSum / remainingCount;
           const diff = (targetRemainingMean - drawnMean) * 0.8;
           if (Math.abs(diff) > 1e-4) {
             for (let i = K; i < N; i++) {
+              const remIdx = i - K;
               const s = simScores[i];
+              const sMin = slotMin[remIdx];
+              const sMax = slotMax[remIdx];
               if (diff > 0) {
-                // Need to increase mean without crossing classMedian from below or M from above
-                const cap = s < classMedian ? classMedian - 1e-3 : M;
+                const medCap = (!slotIsBinned[remIdx] && s < classMedian) ? Math.min(sMax, classMedian - 1e-3) : sMax;
+                const cap = Math.max(sMin, medCap);
                 const room = Math.max(0, cap - s);
-                const maxRoom = s < classMedian ? Math.max(0.5, classMedian) : Math.max(0.5, M - classMedian);
+                const maxRoom = Math.max(0.5, cap - sMin);
                 simScores[i] = Math.min(cap, s + diff * (room / maxRoom) * 1.35);
               } else {
-                // Need to decrease mean without crossing classMedian from above or 0 from below
-                const floor = s >= classMedian ? classMedian : 0;
+                const medFloor = (!slotIsBinned[remIdx] && s >= classMedian) ? Math.max(sMin, classMedian) : sMin;
+                const floor = Math.min(sMax, medFloor);
                 const room = Math.max(0, s - floor);
-                const maxRoom = s >= classMedian ? Math.max(0.5, M - classMedian) : Math.max(0.5, classMedian);
+                const maxRoom = Math.max(0.5, sMax - floor);
                 simScores[i] = Math.max(floor, s + diff * (room / maxRoom) * 1.35);
               }
             }
@@ -1823,31 +2212,39 @@
       if (computed.fit) renderDistributionSVG();
     }
 
-    // FIXED: Compute item continuous stats with proportional clamping [0.005*M, 0.995*M] and fixed-item awareness
+    // FIXED: Compute item continuous stats with proportional clamping [0.005*M, 0.995*M], fixed-item awareness, actual bounds, and custom bins
     function computeItemContinuousStats(item, studentCount) {
       const M = Math.max(1, Number(item.maxScore) || 100);
       const isFixed = isNonDiscriminatingItem(item);
+      const bounds = getEffectiveBounds(item, M);
+      const validScoreBins = getValidScoreBins(item, M, bounds.effMin, bounds.effMax);
+
       const rawMean = Number(item.mean) !== undefined && !isNaN(Number(item.mean)) ? Number(item.mean) : M * 0.65;
       const rawMedian = Number(item.median) !== undefined && !isNaN(Number(item.median)) ? Number(item.median) : rawMean;
 
-      // Proportional clamping instead of hardcoded 0.5!
-      const pad = M * 0.005;
-      const mean = Math.min(Math.max(rawMean, pad), M - pad);
-      const median = Math.min(Math.max(rawMedian, pad), M - pad);
+      // Proportional clamping within [effMin, effMax]
+      const pad = bounds.span * 0.005;
+      const mean = Math.min(Math.max(rawMean, bounds.effMin + pad), bounds.effMax - pad);
+      const median = Math.min(Math.max(rawMedian, bounds.effMin + pad), bounds.effMax - pad);
       const myScore = Math.min(Math.max(Number(item.myScore) || 0, 0), M);
 
       const autoSd = computeAutoEstimatedSD({
-        mean, median, maxScore: M, knownScores: item.knownScores || [], myScore
+        mean, median, maxScore: M, knownScores: item.knownScores || [], myScore,
+        effMin: bounds.effMin, effMax: bounds.effMax, useBounds: bounds.useBounds,
+        hasExplicitMin: bounds.hasExplicitMin, hasExplicitMax: bounds.hasExplicitMax,
+        customBins: validScoreBins
       });
       const activeSd = item.sdMode === 'auto'
         ? autoSd
-        : Math.min(Math.max(Number(item.sdInput) || autoSd, M * 0.01), M * 0.46);
+        : Math.min(Math.max(Number(item.sdInput) || autoSd, bounds.span * 0.01), bounds.span * 0.46);
 
       const fit = fitDistributions({
-        mean, median, sd: activeSd, isCustomSd: item.sdMode === 'custom', maxScore: M
+        mean, median, sd: activeSd, isCustomSd: item.sdMode === 'custom', maxScore: M,
+        effMin: bounds.effMin, effMax: bounds.effMax, useBounds: bounds.useBounds,
+        hasExplicitMin: bounds.hasExplicitMin, hasExplicitMax: bounds.hasExplicitMax
       });
       const effectiveDistKey = (!item.selectedDist || item.selectedDist === 'auto') ? fit.recommended : item.selectedDist;
-      const distTable = buildDistributionTable(effectiveDistKey, fit);
+      const distTable = buildDistributionTable(effectiveDistKey, fit, validScoreBins, studentCount);
 
       if (isFixed) {
         // Non-discriminating item (e.g. Attendance where everyone gets full score): Z = 0 unless student lost points
@@ -1855,6 +2252,7 @@
         const topPercent = penaltyZ < 0 ? (1 - stdNormalCDF(penaltyZ)) * 100 : 50.0;
         return {
           M, mean: rawMean, median: rawMedian, autoSd, activeSd, myScore, isFixed: true,
+          bounds, validScoreBins,
           fit, effectiveDistKey, distTable,
           cdfVal: 1 - topPercent / 100,
           topPercent,
@@ -1867,13 +2265,14 @@
 
       const cdfVal = distTable.getCDF(myScore);
       const topPercent = Math.max(0.01, (1 - cdfVal) * 100);
-      const effectiveSd = fit.sigma * fit.M;
+      const effectiveSd = validScoreBins.length > 0 ? distTable.calcSd : fit.sigma * fit.span;
       const zScore = (myScore - mean) / Math.max(effectiveSd, M * 0.01);
       const tScore = 50 + 10 * zScore;
       const estRank = Math.max(1, Math.min(studentCount, Math.round((topPercent / 100) * studentCount)));
 
       return {
         M, mean, median, autoSd, activeSd, myScore, isFixed: false,
+        bounds, validScoreBins,
         fit, effectiveDistKey, distTable,
         cdfVal, topPercent, zScore, tScore, effectiveSd, estRank
       };
@@ -1887,38 +2286,46 @@
       if (item) {
         const M = Math.max(1, Number(item.maxScore) || 100);
         const isFixed = isNonDiscriminatingItem(item);
-        const pad = M * 0.005;
-        const mean = Math.min(Math.max(Number(item.mean) || M * 0.65, pad), M - pad);
-        const median = Math.min(Math.max(Number(item.median) || mean, pad), M - pad);
+        const bounds = getEffectiveBounds(item, M);
+        const validScoreBins = getValidScoreBins(item, M, bounds.effMin, bounds.effMax);
+
+        const pad = bounds.span * 0.005;
+        const mean = Math.min(Math.max(Number(item.mean) || M * 0.65, bounds.effMin + pad), bounds.effMax - pad);
+        const median = Math.min(Math.max(Number(item.median) || mean, bounds.effMin + pad), bounds.effMax - pad);
         const myScore = Math.min(Math.max(Number(item.myScore) || 0, 0), M);
 
         const autoEstimatedSd = computeAutoEstimatedSD({
-          mean, median, maxScore: M, knownScores: item.knownScores || [], myScore
+          mean, median, maxScore: M, knownScores: item.knownScores || [], myScore,
+          effMin: bounds.effMin, effMax: bounds.effMax, useBounds: bounds.useBounds,
+          hasExplicitMin: bounds.hasExplicitMin, hasExplicitMax: bounds.hasExplicitMax,
+          customBins: validScoreBins
         });
 
         if (item.sdMode === 'auto') {
           item.sdInput = autoEstimatedSd;
         }
-        const activeSd = Math.min(Math.max(Number(item.sdInput) || autoEstimatedSd, M * 0.01), M * 0.46);
+        const activeSd = Math.min(Math.max(Number(item.sdInput) || autoEstimatedSd, bounds.span * 0.01), bounds.span * 0.46);
 
         const fit = fitDistributions({
-          mean, median, sd: activeSd, isCustomSd: item.sdMode === 'custom', maxScore: M
+          mean, median, sd: activeSd, isCustomSd: item.sdMode === 'custom', maxScore: M,
+          effMin: bounds.effMin, effMax: bounds.effMax, useBounds: bounds.useBounds,
+          hasExplicitMin: bounds.hasExplicitMin, hasExplicitMax: bounds.hasExplicitMax
         });
 
         const effectiveDistKey = (!item.selectedDist || item.selectedDist === 'auto') ? fit.recommended : item.selectedDist;
 
         const allDistTables = {
-          beta: buildDistributionTable('beta', fit),
-          logitNormal: buildDistributionTable('logitNormal', fit),
-          skewNormal: buildDistributionTable('skewNormal', fit),
-          normal: buildDistributionTable('normal', fit),
-          ensemble: buildDistributionTable('ensemble', fit)
+          beta: buildDistributionTable('beta', fit, validScoreBins, studentCount),
+          logitNormal: buildDistributionTable('logitNormal', fit, validScoreBins, studentCount),
+          skewNormal: buildDistributionTable('skewNormal', fit, validScoreBins, studentCount),
+          normal: buildDistributionTable('normal', fit, validScoreBins, studentCount),
+          ensemble: buildDistributionTable('ensemble', fit, validScoreBins, studentCount)
         };
 
         const activeDistTable = allDistTables[effectiveDistKey] || allDistTables.beta;
         const cdfVal = activeDistTable.getCDF(myScore);
         const topPercent = isFixed && myScore >= mean ? 50.0 : Math.max(0.01, (1 - cdfVal) * 100);
-        const effectiveSd = fit.sigma * fit.M;
+        const effectiveSd = validScoreBins.length > 0 ? activeDistTable.calcSd : fit.sigma * fit.span;
         const zScore = isFixed && myScore >= mean
           ? 0
           : (myScore - mean) / Math.max(effectiveSd, M * 0.01);
@@ -1926,6 +2333,7 @@
 
         computed = {
           M, mean, median, activeSd, autoEstimatedSd, myScore, studentCount, isFixed,
+          bounds, validScoreBins,
           fit, effectiveDistKey, allDistTables, activeDistTable,
           myContinuousStats: { cdfVal, topPercent, zScore, tScore, effectiveSd }
         };
@@ -1959,7 +2367,8 @@
         iterations: state.mcIterations,
         enforceMoments: state.enforceMoments,
         seedNonce: state.mcSeedNonce,
-        gradeCutRatios: folder.gradeCutRatios
+        gradeCutRatios: folder.gradeCutRatios,
+        customBins: computed.validScoreBins || []
       });
       state.mcNeedsUpdate = false;
 
@@ -2204,7 +2613,7 @@
       const plotH = height - pad.top - pad.bottom;
 
       const item = getActiveItem();
-      const { M, mean, median, myScore, studentCount, fit, effectiveDistKey, allDistTables, activeDistTable } = computed;
+      const { M, mean, median, myScore, studentCount, bounds, validScoreBins, fit, effectiveDistKey, allDistTables, activeDistTable } = computed;
       const mcResult = item?.mcResult || null;
 
       const curveKeys = state.showAllCurves
@@ -2222,6 +2631,15 @@
         mcResult.bins.forEach((b) => {
           const binDensity = b.density / (M / 20);
           if (binDensity > maxDensity) maxDensity = binDensity;
+        });
+      }
+      if (validScoreBins && validScoreBins.length > 0) {
+        const totalBinCnt = validScoreBins.reduce((a, b) => a + b.count, 0);
+        const effN = Math.max(studentCount, totalBinCnt, 1);
+        validScoreBins.forEach((b) => {
+          const w = Math.max(0.1, b.max - b.min);
+          const d = (b.count / effN) / w;
+          if (d > maxDensity) maxDensity = d;
         });
       }
       maxDensity *= 1.15;
@@ -2269,6 +2687,29 @@
         `;
       }
 
+      // Render User Custom Score Bins if active
+      if (validScoreBins && validScoreBins.length > 0) {
+        const totalBinCnt = validScoreBins.reduce((a, b) => a + b.count, 0);
+        const effN = Math.max(studentCount, totalBinCnt, 1);
+        validScoreBins.forEach((b) => {
+          const x1 = xToPx(b.min);
+          const x2 = xToPx(b.max);
+          const bw = Math.max(2, x2 - x1);
+          const wScore = Math.max(0.1, b.max - b.min);
+          const binDens = (b.count / effN) / wScore;
+          const y = yToPx(binDens);
+          const h = Math.max(0, pad.top + plotH - y);
+          html += `
+            <rect x="${x1}" y="${y}" width="${bw}" height="${h}" rx="2" fill="#8b5cf6" fill-opacity="${isDark ? '0.20' : '0.14'}" stroke="#8b5cf6" stroke-opacity="0.6" stroke-dasharray="3 2" stroke-width="1.2" />
+            ${
+              bw >= 26 && b.count > 0
+                ? `<text x="${x1 + bw / 2}" y="${Math.max(pad.top + 10, y - 4)}" text-anchor="middle" class="fill-violet-500 dark:fill-violet-300 text-[9px] font-bold">${b.count}명</text>`
+                : ''
+            }
+          `;
+        });
+      }
+
       if (mcResult && state.showMcHistogramOnMain) {
         const binWidthScore = M / 20;
         const barW = Math.max(2, plotW / 20 - 3);
@@ -2298,6 +2739,24 @@
 
       html += `<path d="${buildCurvePath(activeDistTable)}" fill="none" stroke="${activeColor}" stroke-width="3" />`;
 
+      // Render Optional Actual Min / Max Bound Markers
+      if (bounds && bounds.useBounds) {
+        if (bounds.hasExplicitMin) {
+          const minX = xToPx(bounds.effMin);
+          html += `
+            <line x1="${minX}" y1="${pad.top}" x2="${minX}" y2="${pad.top + plotH}" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 2" />
+            <text x="${minX + 3}" y="${pad.top + plotH - 8}" text-anchor="start" class="fill-sky-500 text-[10px] font-bold">최저 ${Number(bounds.effMin.toFixed(1))}</text>
+          `;
+        }
+        if (bounds.hasExplicitMax) {
+          const maxX = xToPx(bounds.effMax);
+          html += `
+            <line x1="${maxX}" y1="${pad.top}" x2="${maxX}" y2="${pad.top + plotH}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 2" />
+            <text x="${maxX - 3}" y="${pad.top + plotH - 8}" text-anchor="end" class="fill-emerald-500 text-[10px] font-bold">최고 ${Number(bounds.effMax.toFixed(1))}</text>
+          `;
+        }
+      }
+
       html += `
         <line x1="${xToPx(mean)}" y1="${pad.top}" x2="${xToPx(mean)}" y2="${pad.top + plotH}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" />
         <text x="${xToPx(mean)}" y="${pad.top - 8}" text-anchor="middle" class="fill-amber-500 text-[10px] font-bold">평균 ${Number(mean.toFixed(2))}</text>
@@ -2310,7 +2769,8 @@
       });
 
       const myX = xToPx(myScore);
-      const myY = yToPx(evalNormalizedPDF(myScore / M, effectiveDistKey, fit) / M);
+      const myGridIdx = Math.min(200, Math.max(0, Math.round((myScore / M) * 200)));
+      const myY = yToPx((activeDistTable.pdfs[myGridIdx] || 0) / M);
       const badgeX = Math.min(Math.max(myX - 44, pad.left), width - pad.right - 88);
       html += `
         <line x1="${myX}" y1="${pad.top - 4}" x2="${myX}" y2="${pad.top + plotH}" stroke="#f43f5e" stroke-width="2.4" />
@@ -2429,6 +2889,16 @@
                 ${
                   stats.isFixed
                     ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold shrink-0" title="상대평가 Z-분산에서 분리됨">변별제외</span>`
+                    : ''
+                }
+                ${
+                  stats.bounds && stats.bounds.useBounds
+                    ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-400 font-semibold shrink-0" title="실제 최솟값·최댓값 범위 제한 적용됨">${Number(stats.bounds.effMin.toFixed(1))}~${Number(stats.bounds.effMax.toFixed(1))}점</span>`
+                    : ''
+                }
+                ${
+                  stats.validScoreBins && stats.validScoreBins.length > 0
+                    ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-600 dark:text-violet-400 font-semibold shrink-0" title="사용자 설정 점수 구간 인원 적용됨">구간 ${stats.validScoreBins.length}개</span>`
                     : ''
                 }
               </div>
@@ -2747,7 +3217,7 @@
       }
 
       // 4. Individual Exam Analyzer View Rendering
-      const { M, mean, median, activeSd, autoEstimatedSd, myScore, studentCount, isFixed, fit, effectiveDistKey, allDistTables, myContinuousStats } = computed;
+      const { M, mean, median, activeSd, autoEstimatedSd, myScore, studentCount, isFixed, bounds, validScoreBins, fit, effectiveDistKey, allDistTables, myContinuousStats } = computed;
       const mcResult = item.mcResult;
       const isUpcomingItem = item.status === 'upcoming';
 
@@ -2756,6 +3226,65 @@
       setInputValueSafe('input-exam-weight', item.weight);
       setInputValueSafe('input-max-score', item.maxScore);
       document.getElementById('check-fixed-item').checked = isFixed;
+
+      // Optional Actual Min / Max Bounds UI
+      const useBounds = Boolean(item.useActualBounds);
+      document.getElementById('check-use-actual-bounds').checked = useBounds;
+      document.getElementById('actual-bounds-inputs-box').classList.toggle('hidden', !useBounds);
+      setInputValueSafe('input-actual-min', item.actualMin !== undefined && item.actualMin !== null ? item.actualMin : '');
+      setInputValueSafe('input-actual-max', item.actualMax !== undefined && item.actualMax !== null ? item.actualMax : '');
+      document.getElementById('input-actual-max').placeholder = `미입력 시 만점(${M}점)`;
+      if (useBounds && bounds) {
+        document.getElementById('actual-bounds-summary').innerHTML = `
+          <span>적용 분포 범위: <strong class="text-indigo-600 dark:text-indigo-400">${Number(bounds.effMin.toFixed(2))}점 ~ ${Number(bounds.effMax.toFixed(2))}점</strong> (만점 ${M}점)</span>
+          <button id="btn-reset-actual-bounds" type="button" class="text-slate-400 hover:text-rose-500 underline">초기화</button>
+        `;
+      }
+
+      // Optional Custom Score Bins UI
+      const useBins = Boolean(item.useScoreBins);
+      document.getElementById('check-use-score-bins').checked = useBins;
+      document.getElementById('score-bins-editor-box').classList.toggle('hidden', !useBins);
+      if (useBins) {
+        const rawBins = Array.isArray(item.scoreBins) ? item.scoreBins : [];
+        const totalAssigned = rawBins.reduce((acc, b) => acc + (Math.max(0, Number(b.count)) || 0), 0);
+        const remStudents = studentCount - totalAssigned;
+        const summaryBadge = document.getElementById('score-bins-summary-badge');
+        if (remStudents === 0) {
+          summaryBadge.className = 'text-[11px] font-bold text-emerald-600 dark:text-emerald-400';
+          summaryBadge.textContent = `구간 인원 합계: ${totalAssigned}명 / ${studentCount}명 (전원 지정됨)`;
+        } else if (remStudents > 0) {
+          summaryBadge.className = 'text-[11px] font-bold text-indigo-600 dark:text-indigo-400';
+          summaryBadge.textContent = `구간 인원 합계: ${totalAssigned}명 / ${studentCount}명 (미지정 ${remStudents}명)`;
+        } else {
+          summaryBadge.className = 'text-[11px] font-bold text-amber-600 dark:text-amber-400';
+          summaryBadge.textContent = `구간 인원 합계: ${totalAssigned}명 (수강 인원 ${studentCount}명 초과 · 비율 자동 보정)`;
+        }
+
+        const binsListEl = document.getElementById('score-bins-list');
+        const activeEl = document.activeElement;
+        const isEditingBinInput = activeEl && activeEl.classList && activeEl.classList.contains('input-score-bin');
+        if (!isEditingBinInput) {
+          if (rawBins.length === 0) {
+            binsListEl.innerHTML = `<div class="text-[11px] text-slate-400 py-2 text-center">[+ 구간 추가] 또는 [5구간 분할]을 눌러 점수 구간과 인원수를 설정하세요.</div>`;
+          } else {
+            binsListEl.innerHTML = rawBins.map((b, idx) => `
+              <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
+                <span class="text-[10px] font-mono text-slate-400 w-4">#${idx + 1}</span>
+                <input data-bin-id="${b.id}" data-bin-field="min" type="text" inputmode="decimal" value="${b.min}" placeholder="최소" class="input-score-bin w-14 px-1.5 py-1 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:outline-none" />
+                <span class="text-slate-400">~</span>
+                <input data-bin-id="${b.id}" data-bin-field="max" type="text" inputmode="decimal" value="${b.max}" placeholder="최대" class="input-score-bin w-14 px-1.5 py-1 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:outline-none" />
+                <span class="text-[11px] text-slate-400">점</span>
+                <div class="ml-auto flex items-center gap-1">
+                  <input data-bin-id="${b.id}" data-bin-field="count" type="text" inputmode="decimal" value="${b.count}" placeholder="인원" class="input-score-bin w-14 px-1.5 py-1 rounded bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/40 text-center font-extrabold text-indigo-600 dark:text-indigo-300 focus:border-indigo-500 focus:outline-none" />
+                  <span class="text-[11px] text-slate-500">명</span>
+                  <button data-remove-bin="${b.id}" type="button" class="btn-remove-score-bin ml-1 text-slate-400 hover:text-rose-500 font-bold px-1" title="구간 삭제">&times;</button>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      }
 
       // Keep inputs accessible even for upcoming items so user can simulate scenarios!
       document.getElementById('card1-title').textContent = isUpcomingItem
@@ -3002,8 +3531,14 @@
         : '';
 
       // Chart & Legend
+      const boundsInfoStr = bounds && bounds.useBounds
+        ? ` · 실제 범위: <strong class="text-sky-600 dark:text-sky-400">[${Number(bounds.effMin.toFixed(1))}~${Number(bounds.effMax.toFixed(1))}점]</strong>`
+        : '';
+      const binsInfoStr = validScoreBins && validScoreBins.length > 0
+        ? ` · 구간 설정: <strong class="text-violet-600 dark:text-violet-400">${validScoreBins.length}개 구간(${validScoreBins.reduce((a, b) => a + b.count, 0)}명)</strong>`
+        : '';
       document.getElementById('chart-sd-summary').innerHTML =
-        `만점 기준: <strong>${M}점</strong> · 적용 표준편차: <strong class="text-indigo-600 dark:text-indigo-400">${activeSd.toFixed(2)}점</strong> (${
+        `만점 기준: <strong>${M}점</strong>${boundsInfoStr}${binsInfoStr} · 적용 표준편차: <strong class="text-indigo-600 dark:text-indigo-400">${activeSd.toFixed(2)}점</strong> (${
           item.sdMode === 'auto' ? 'AI 자동 추정' : '사용자 직접 설정'
         })`;
       renderDistributionSVG();
@@ -3324,6 +3859,153 @@
         }
       });
 
+      // Optional Actual Min / Max Score Bounds Listeners
+      document.getElementById('check-use-actual-bounds').addEventListener('change', (e) => {
+        const item = getActiveItem();
+        if (item) {
+          item.useActualBounds = e.target.checked;
+          state.mcNeedsUpdate = true;
+          recalculateContinuousOnly(true);
+        }
+      });
+
+      document.getElementById('input-actual-min').addEventListener('input', (e) => {
+        const item = getActiveItem();
+        if (!item) return;
+        const raw = e.target.value.trim();
+        if (raw === '') {
+          item.actualMin = '';
+          state.mcNeedsUpdate = true;
+          recalculateContinuousOnly(true);
+          return;
+        }
+        if (raw.endsWith('.')) return;
+        const num = Number(raw);
+        if (!isNaN(num) && num >= 0) {
+          item.actualMin = num;
+          state.mcNeedsUpdate = true;
+          recalculateContinuousOnly(true);
+        }
+      });
+
+      document.getElementById('input-actual-max').addEventListener('input', (e) => {
+        const item = getActiveItem();
+        if (!item) return;
+        const raw = e.target.value.trim();
+        if (raw === '') {
+          item.actualMax = '';
+          state.mcNeedsUpdate = true;
+          recalculateContinuousOnly(true);
+          return;
+        }
+        if (raw.endsWith('.')) return;
+        const num = Number(raw);
+        if (!isNaN(num) && num >= 0) {
+          item.actualMax = num;
+          state.mcNeedsUpdate = true;
+          recalculateContinuousOnly(true);
+        }
+      });
+
+      // Optional Custom Score Bins Listeners
+      document.getElementById('check-use-score-bins').addEventListener('change', (e) => {
+        const item = getActiveItem();
+        if (!item) return;
+        item.useScoreBins = e.target.checked;
+        if (item.useScoreBins && (!Array.isArray(item.scoreBins) || item.scoreBins.length === 0)) {
+          const M = Math.max(1, Number(item.maxScore) || 100);
+          const b = getEffectiveBounds(item, M);
+          const hi = b.effMax;
+          const lo = Number(Math.max(b.effMin, hi - b.span * 0.2).toFixed(1));
+          item.scoreBins = [
+            { id: `bin-${Date.now()}-1`, min: lo, max: hi, count: Math.max(1, Math.round(computed.studentCount * 0.2)) }
+          ];
+        }
+        state.mcNeedsUpdate = true;
+        recalculateContinuousOnly(true);
+      });
+
+      document.getElementById('btn-add-score-bin').addEventListener('click', () => {
+        const item = getActiveItem();
+        if (!item) return;
+        if (!Array.isArray(item.scoreBins)) item.scoreBins = [];
+        const M = Math.max(1, Number(item.maxScore) || 100);
+        const b = getEffectiveBounds(item, M);
+        const step = Number((b.span / 5).toFixed(1));
+        let nextMax = b.effMax;
+        if (item.scoreBins.length > 0) {
+          const lowestMin = Math.min(...item.scoreBins.map((x) => Number(x.min) || 0));
+          if (lowestMin > b.effMin + 0.1) nextMax = lowestMin;
+        }
+        const nextMin = Number(Math.max(b.effMin, nextMax - step).toFixed(1));
+        item.scoreBins.push({
+          id: `bin-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          min: nextMin,
+          max: nextMax > nextMin ? nextMax : b.effMax,
+          count: 5
+        });
+        state.mcNeedsUpdate = true;
+        recalculateContinuousOnly(true);
+      });
+
+      document.getElementById('btn-preset-5bins').addEventListener('click', () => {
+        const item = getActiveItem();
+        if (!item) return;
+        const M = Math.max(1, Number(item.maxScore) || 100);
+        const b = getEffectiveBounds(item, M);
+        const step = b.span / 5;
+        const N = computed.studentCount;
+        const newBins = [];
+        let assignedSum = 0;
+        for (let i = 4; i >= 0; i--) {
+          const lo = Number((b.effMin + i * step).toFixed(1));
+          const hi = Number((i === 4 ? b.effMax : b.effMin + (i + 1) * step).toFixed(1));
+          const prob = computed.activeDistTable
+            ? Math.max(0, computed.activeDistTable.getCDF(hi) - computed.activeDistTable.getCDF(lo))
+            : 0.2;
+          const cnt = i === 0 ? Math.max(0, N - assignedSum) : Math.round(prob * N);
+          assignedSum += cnt;
+          newBins.push({
+            id: `bin-${Date.now()}-${i}`,
+            min: lo,
+            max: hi,
+            count: cnt
+          });
+        }
+        item.scoreBins = newBins;
+        state.mcNeedsUpdate = true;
+        recalculateContinuousOnly(true);
+        showToast('현재 점수 범위를 5개 구간으로 분할했습니다. 각 구간의 범위와 인원수를 자유롭게 수정하세요!');
+      });
+
+      document.getElementById('btn-apply-bins-stats').addEventListener('click', () => {
+        const item = getActiveItem();
+        if (!item) return;
+        const M = Math.max(1, Number(item.maxScore) || 100);
+        const b = getEffectiveBounds(item, M);
+        const validBins = getValidScoreBins(item, M, b.effMin, b.effMax);
+        const stats = computeStatsFromScoreBins(validBins, M, b.effMin, b.effMax);
+        if (!stats) {
+          showToast('유효한 점수 구간과 1명 이상의 인원을 먼저 입력해주세요.', 'error');
+          return;
+        }
+        item.mean = stats.mean;
+        item.median = stats.median;
+        item.sdMode = 'custom';
+        item.sdInput = stats.sd;
+        state.mcNeedsUpdate = true;
+        recalculateContinuousOnly(true);
+        showToast(`구간 데이터 기준 평균(${stats.mean}), 중앙값(${stats.median}), 표준편차(${stats.sd})를 반영했습니다!`);
+      });
+
+      document.getElementById('btn-clear-score-bins').addEventListener('click', () => {
+        const item = getActiveItem();
+        if (!item) return;
+        item.scoreBins = [];
+        state.mcNeedsUpdate = true;
+        recalculateContinuousOnly(true);
+      });
+
       document.getElementById('input-exam-title').addEventListener('input', (e) => {
         const item = getActiveItem();
         if (item) {
@@ -3538,6 +4220,31 @@
           return;
         }
 
+        if (e.target.closest('#btn-reset-actual-bounds')) {
+          const item = getActiveItem();
+          if (item) {
+            item.actualMin = '';
+            item.actualMax = '';
+            document.getElementById('input-actual-min').value = '';
+            document.getElementById('input-actual-max').value = '';
+            state.mcNeedsUpdate = true;
+            recalculateContinuousOnly(true);
+          }
+          return;
+        }
+
+        const rmBinBtn = e.target.closest('.btn-remove-score-bin');
+        if (rmBinBtn) {
+          const item = getActiveItem();
+          if (item && Array.isArray(item.scoreBins)) {
+            const bid = rmBinBtn.getAttribute('data-remove-bin');
+            item.scoreBins = item.scoreBins.filter((b) => String(b.id) !== String(bid));
+            state.mcNeedsUpdate = true;
+            recalculateContinuousOnly(true);
+          }
+          return;
+        }
+
         const mcIterBtn = e.target.closest('.btn-mc-iter');
         if (mcIterBtn) {
           state.mcIterations = parseInt(mcIterBtn.getAttribute('data-mc-iter'), 10);
@@ -3548,6 +4255,24 @@
       });
 
       document.body.addEventListener('input', (e) => {
+        if (e.target.classList.contains('input-score-bin')) {
+          const item = getActiveItem();
+          if (!item || !Array.isArray(item.scoreBins)) return;
+          const bid = e.target.getAttribute('data-bin-id');
+          const field = e.target.getAttribute('data-bin-field');
+          const targetBin = item.scoreBins.find((b) => String(b.id) === String(bid));
+          if (!targetBin) return;
+          const raw = e.target.value.trim();
+          if (raw === '' || raw.endsWith('.')) return;
+          const num = Number(raw);
+          if (!isNaN(num) && num >= 0) {
+            targetBin[field] = num;
+            state.mcNeedsUpdate = true;
+            recalculateContinuousOnly(true);
+          }
+          return;
+        }
+
         if (e.target.classList.contains('plan-input')) {
           const iid = e.target.getAttribute('data-plan-item');
           const field = e.target.getAttribute('data-field');
